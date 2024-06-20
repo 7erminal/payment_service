@@ -1,0 +1,448 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "beego Test API",
+        "description": "beego has a very cool tools to autogenerate documents for your API\n",
+        "version": "1.0.0",
+        "termsOfService": "http://beego.me/",
+        "contact": {
+            "email": "astaxie@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "basePath": "/v1",
+    "paths": {
+        "/payments/": {
+            "get": {
+                "tags": [
+                    "payments"
+                ],
+                "description": "get Payments\n\u003cbr\u003e",
+                "operationId": "PaymentsController.Get All",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "description": "Fields returned. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortby",
+                        "description": "Sorted-by fields. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Limit the size of result set. Must be an integer",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Start position of result set. Must be an integer",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Payments"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "payments"
+                ],
+                "description": "create Payments\n\u003cbr\u003e",
+                "operationId": "PaymentsController.Post",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Payments content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.PaymentRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} requests.PaymentRequestDTO"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/payments/{id}": {
+            "get": {
+                "tags": [
+                    "payments"
+                ],
+                "description": "get Payments by id\n\u003cbr\u003e",
+                "operationId": "PaymentsController.Get One",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The key for staticblock",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Payments"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "payments"
+                ],
+                "description": "update the Payments\n\u003cbr\u003e",
+                "operationId": "PaymentsController.Put",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Payments content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Payments"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Payments"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "payments"
+                ],
+                "description": "delete the Payments\n\u003cbr\u003e",
+                "operationId": "PaymentsController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Accounts": {
+            "title": "Accounts",
+            "type": "object",
+            "properties": {
+                "AccountId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "AccountNumber": {
+                    "type": "string"
+                },
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Balance": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "BalanceBefore": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "UserId": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Payment_history": {
+            "title": "Payment_history",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "PaymentHistoryId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "PaymentId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Status": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Payment_methods": {
+            "title": "Payment_methods",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "PaymentMethod": {
+                    "type": "string"
+                },
+                "PaymentMethodId": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Payment_types": {
+            "title": "Payment_types",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "PaymentType": {
+                    "type": "string"
+                },
+                "PaymentTypeId": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Payments": {
+            "title": "Payments",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Amount": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "InitiatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "PaymentAccount": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "PaymentId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "PaymentMethod": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Reciever": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Sender": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Status": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "TransactionId": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "requests.PaymentRequestDTO": {
+            "title": "PaymentRequestDTO",
+            "type": "object",
+            "properties": {
+                "Amount": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "InitiatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "PaymentMethod": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Reciever": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Sender": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Service": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "TransactionId": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "payments",
+            "description": "PaymentsController operations for Payments\n"
+        }
+    ]
+}
