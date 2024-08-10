@@ -1,0 +1,15 @@
+version: "3"
+services:
+  payment-service:
+    container_name: payment-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: car-pool/payment-service
+    ports:
+      - 8088:8088
+    networks:
+      - projects_default
+networks:
+  projects_default:
+    external: true
