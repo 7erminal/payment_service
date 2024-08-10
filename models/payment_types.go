@@ -20,7 +20,7 @@ type Payment_types struct {
 	ModifiedBy    int
 	Active        int
 }
-
+ 
 func init() {
 	orm.RegisterModel(new(Payment_types))
 }
