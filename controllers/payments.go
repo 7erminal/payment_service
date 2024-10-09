@@ -50,7 +50,7 @@ func (c *PaymentsController) Post() {
 		var payment_history models.Payment_history = models.Payment_history{PaymentId: payment.PaymentId, Status: payment.Status, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
 		if _, err := models.AddPayment_history(&payment_history); err == nil {
 			var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 200, Payment: &payment, StatusDesc: "Payment successfully initiated!"}
-			c.Ctx.Output.SetStatus(201)
+			c.Ctx.Output.SetStatus(200)
 			c.Data["json"] = resp
 		} else {
 			var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
