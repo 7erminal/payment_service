@@ -20,6 +20,11 @@ func init() {
 				&controllers.PaymentsController{},
 			),
 		),
+		beego.NSNamespace("/payment-methods",
+			beego.NSInclude(
+				&controllers.Payment_methodsController{},
+			),
+		),
 	)
 
 	beego.AddNamespace(ns)

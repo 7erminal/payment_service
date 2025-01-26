@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"payment_service/models"
+	"payment_service/structs/responses"
 	"strconv"
 	"strings"
 
+	"github.com/beego/beego/v2/core/logs"
 	beego "github.com/beego/beego/v2/server/web"
 )
 
@@ -118,9 +120,18 @@ func (c *Payment_methodsController) GetAll() {
 
 	l, err := models.GetAllPayment_methods(query, fields, sortby, order, offset, limit)
 	if err != nil {
-		c.Data["json"] = err.Error()
+		logs.Error("Error fetching payment methods ", err.Error())
+		resp := responses.PaymentMethodsResponseDTO{StatusCode: 608, PaymentMethods: nil, StatusDesc: "Error fetching payment methods"}
+		c.Data["json"] = resp
 	} else {
-		c.Data["json"] = l
+		paymentMethods := []models.Payment_methods{}
+		for _, urs := range l {
+			m := urs.(models.Payment_methods)
+
+			paymentMethods = append(paymentMethods, m)
+		}
+		resp := responses.PaymentMethodsResponseDTO{StatusCode: 200, PaymentMethods: &paymentMethods, StatusDesc: "Successfully fetched payment methods"}
+		c.Data["json"] = resp
 	}
 	c.ServeJSON()
 }

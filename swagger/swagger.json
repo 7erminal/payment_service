@@ -15,6 +15,179 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/payment-methods/": {
+            "get": {
+                "tags": [
+                    "payment-methods"
+                ],
+                "description": "get Payment_methods\n\u003cbr\u003e",
+                "operationId": "Payment_methodsController.Get All",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "description": "Fields returned. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortby",
+                        "description": "Sorted-by fields. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Limit the size of result set. Must be an integer",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Start position of result set. Must be an integer",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment_methods"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "payment-methods"
+                ],
+                "description": "create Payment_methods\n\u003cbr\u003e",
+                "operationId": "Payment_methodsController.Post",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Payment_methods content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment_methods"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.Payment_methods"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/payment-methods/{id}": {
+            "get": {
+                "tags": [
+                    "payment-methods"
+                ],
+                "description": "get Payment_methods by id\n\u003cbr\u003e",
+                "operationId": "Payment_methodsController.Get One",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The key for staticblock",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment_methods"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "payment-methods"
+                ],
+                "description": "update the Payment_methods\n\u003cbr\u003e",
+                "operationId": "Payment_methodsController.Put",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Payment_methods content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment_methods"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment_methods"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "payment-methods"
+                ],
+                "description": "delete the Payment_methods\n\u003cbr\u003e",
+                "operationId": "Payment_methodsController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
+                    }
+                }
+            }
+        },
         "/payments/": {
             "get": {
                 "tags": [
@@ -92,6 +265,32 @@
                 "responses": {
                     "201": {
                         "description": "{int} requests.PaymentRequestDTO"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/payments/upload-payment-proof": {
+            "post": {
+                "tags": [
+                    "payments"
+                ],
+                "description": "Upload a payment proof\n\u003cbr\u003e",
+                "operationId": "PaymentsController.Upload Payment Proof",
+                "parameters": [
+                    {
+                        "in": "formData",
+                        "name": "Image",
+                        "description": "Item Image",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{int} responses.StringResponseFDTO"
                     },
                     "403": {
                         "description": "body is empty"
@@ -443,6 +642,10 @@
         {
             "name": "payments",
             "description": "PaymentsController operations for Payments\n"
+        },
+        {
+            "name": "payment-methods",
+            "description": "Payment_methodsController operations for Payment_methods\n"
         }
     ]
 }

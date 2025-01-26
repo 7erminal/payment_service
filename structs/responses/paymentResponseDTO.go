@@ -26,3 +26,9 @@ type PaymentResponseDTO struct {
 	Payment    *models.Payments
 	StatusDesc string
 }
+
+type PaymentMethodsResponseDTO struct {
+	StatusCode     int
+	PaymentMethods *[]models.Payment_methods
+	StatusDesc     string
+}
