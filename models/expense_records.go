@@ -15,6 +15,7 @@ type Expense_records struct {
 	Category        *Payment_categories `orm:"rel(fk); column(category)"`
 	Description     string              `orm:"size(255)"`
 	Currency        *Currencies         `orm:"rel(fk);column(currency_id)"`
+	PaymentMethod   *Payment_methods    `orm:"rel(fk);column(payment_method_id)"`
 	Amount          float64
 	ExpenseDate     time.Time `orm:"type(datetime)"`
 	Active          int

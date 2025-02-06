@@ -76,13 +76,21 @@ func (c *Expense_recordsController) Post() {
 		}
 
 		if category, err := models.GetPayment_categoriesById(v.Category); err == nil {
-			expense := models.Expense_records{ExpenseDate: expenseDate, Category: category, Description: v.Description, Amount: v.Amount, Currency: &currency, Active: 1}
+			if paymentMethod, err := models.GetPayment_methodsById(v.PaymentMethod); err == nil {
+				expense := models.Expense_records{ExpenseDate: expenseDate, Category: category, Description: v.Description, Amount: v.Amount, Currency: &currency, PaymentMethod: paymentMethod, Active: 1}
 
-			if _, err := models.AddExpense_records(&expense); err == nil {
-				statusCode = 200
-				message = "Expense updated successfully"
-				resp := responses.ExpenseResponse{StatusCode: statusCode, Expense: &expense, StatusDesc: message}
-				c.Data["json"] = resp
+				if _, err := models.AddExpense_records(&expense); err == nil {
+					statusCode = 200
+					message = "Expense updated successfully"
+					resp := responses.ExpenseResponse{StatusCode: statusCode, Expense: &expense, StatusDesc: message}
+					c.Data["json"] = resp
+				} else {
+					logs.Info("Error adding expense ", err.Error())
+					message = "Error adding expense"
+					statusCode = 608
+					resp := responses.ExpenseResponse{StatusCode: statusCode, Expense: nil, StatusDesc: message}
+					c.Data["json"] = resp
+				}
 			} else {
 				logs.Info("Error adding expense ", err.Error())
 				message = "Error adding expense"
