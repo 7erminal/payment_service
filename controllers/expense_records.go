@@ -3,6 +3,8 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+	"path/filepath"
 	"payment_service/models"
 	"payment_service/structs/requests"
 	"payment_service/structs/responses"
@@ -39,6 +41,45 @@ func (c *Expense_recordsController) Post() {
 	var v requests.ExpenseRequest
 	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
 
+	rexpenseDate := c.Ctx.Input.Query("Date")
+	rdescription := c.Ctx.Input.Query("Description")
+	rcurrency := c.Ctx.Input.Query("Currency")
+	rpaymentmethod := c.Ctx.Input.Query("PaymentMethod")
+	ramount := c.Ctx.Input.Query("Amount")
+	ruser := c.Ctx.Input.Query("AddedBy")
+	rcategory := c.Ctx.Input.Query("Category")
+
+	// image of user received
+	file, header, err := c.GetFile("ReceiptImage")
+	var filePath string = ""
+
+	if err != nil {
+		// c.Ctx.Output.SetStatus(http.StatusBadRequest)
+		c.Data["json"] = map[string]string{"error": "Failed to get image file."}
+		logs.Info("Failed to get the file ", err)
+		// c.ServeJSON()
+		// return
+	} else {
+		defer file.Close()
+
+		// Save the uploaded file
+		fileName := filepath.Base(header.Filename)
+		filePath = "/uploads/expense-receipts/" + time.Now().Format("20060102150405") + fileName // Define your file path
+		err = c.SaveToFile("ReceiptImage", "../images/"+filePath)
+		if err != nil {
+			c.Ctx.Output.SetStatus(http.StatusInternalServerError)
+			logs.Error("Error saving file", err)
+			// c.Data["json"] = map[string]string{"error": "Failed to save the image file."}
+			// errorMessage := "Error: Failed to save the image file"
+
+			// resp := responses.UserResponseDTO{StatusCode: 601, User: nil, StatusDesc: "Error updating user. " + errorMessage}
+
+			// c.Data["json"] = resp
+			// c.ServeJSON()
+			// return
+		}
+	}
+
 	var expenseDate time.Time
 	proceed := false
 	message := "An error occurred adding this audit request"
@@ -47,10 +88,9 @@ func (c *Expense_recordsController) Post() {
 	var allowedDateList [4]string = [4]string{"2006-01-02", "2006/01/02", "2006-01-02 15:04:05.000", "2006/01/02 15:04:05.000"}
 
 	for _, date_ := range allowedDateList {
-		logs.Debug("About to convert ", v.Date)
-		logs.Debug("About to convert ", c.Ctx.Input.Query("Dob"))
+		logs.Debug("About to convert ", rexpenseDate)
 		// Convert dob string to date
-		tDate, error := time.Parse(date_, v.Date)
+		tDate, error := time.Parse(date_, rexpenseDate)
 
 		if error != nil {
 			logs.Error("Error parsing date", error)
@@ -68,29 +108,52 @@ func (c *Expense_recordsController) Post() {
 	if proceed {
 		currency := models.Currencies{}
 
-		if v.Currency != 0 {
-			logs.Info("Currency is not 0")
-			if cur, err := models.GetCurrenciesById(v.Currency); err == nil {
+		if rcurrency != "" {
+			logs.Info("Currency is not empty")
+			currencyId, _ := strconv.ParseInt(rcurrency, 10, 64)
+			if cur, err := models.GetCurrenciesById(currencyId); err == nil {
 				currency = *cur
 			}
 		}
 
-		if category, err := models.GetPayment_categoriesById(v.Category); err == nil {
-			if paymentMethod, err := models.GetPayment_methodsById(v.PaymentMethod); err == nil {
-				expense := models.Expense_records{ExpenseDate: expenseDate, Category: category, Description: v.Description, Amount: v.Amount, Currency: &currency, PaymentMethod: paymentMethod, Active: 1}
+		category, _ := strconv.ParseInt(rcategory, 10, 64)
+		if category, err := models.GetPayment_categoriesById(category); err == nil {
+			paymentMethod, _ := strconv.ParseInt(rpaymentmethod, 10, 64)
+			if paymentMethod, err := models.GetPayment_methodsById(paymentMethod); err == nil {
+				if ruser != "" {
+					userId, _ := strconv.ParseInt(ruser, 10, 64)
+					if user, err := models.GetUsersById(userId); err == nil {
+						amount, _ := strconv.ParseFloat(ramount, 64)
 
-				if _, err := models.AddExpense_records(&expense); err == nil {
-					statusCode = 200
-					message = "Expense updated successfully"
-					resp := responses.ExpenseResponse{StatusCode: statusCode, Expense: &expense, StatusDesc: message}
-					c.Data["json"] = resp
+						expense := models.Expense_records{ExpenseDate: expenseDate, Category: category, ReceiptImagePath: filePath, Description: rdescription, Amount: amount, Currency: &currency, PaymentMethod: paymentMethod, Active: 1, CreatedBy: user, ModifiedBy: user}
+
+						if _, err := models.AddExpense_records(&expense); err == nil {
+							statusCode = 200
+							message = "Expense updated successfully"
+							resp := responses.ExpenseResponse{StatusCode: statusCode, Expense: &expense, StatusDesc: message}
+							c.Data["json"] = resp
+						} else {
+							logs.Info("Error adding expense ", err.Error())
+							message = "Error adding expense"
+							statusCode = 608
+							resp := responses.ExpenseResponse{StatusCode: statusCode, Expense: nil, StatusDesc: message}
+							c.Data["json"] = resp
+						}
+					} else {
+						logs.Info("Error adding expense ", err.Error())
+						message = "Error adding expense. User provided does not exist"
+						statusCode = 608
+						resp := responses.ExpenseResponse{StatusCode: statusCode, Expense: nil, StatusDesc: message}
+						c.Data["json"] = resp
+					}
 				} else {
-					logs.Info("Error adding expense ", err.Error())
-					message = "Error adding expense"
+					logs.Info("Error adding expense. User field is empty")
+					message = "Error adding expense. User not provided"
 					statusCode = 608
 					resp := responses.ExpenseResponse{StatusCode: statusCode, Expense: nil, StatusDesc: message}
 					c.Data["json"] = resp
 				}
+
 			} else {
 				logs.Info("Error adding expense ", err.Error())
 				message = "Error adding expense"

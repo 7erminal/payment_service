@@ -11,18 +11,19 @@ import (
 )
 
 type Expense_records struct {
-	ExpenseRecordId int64               `orm:"auto"`
-	Category        *Payment_categories `orm:"rel(fk); column(category)"`
-	Description     string              `orm:"size(255)"`
-	Currency        *Currencies         `orm:"rel(fk);column(currency_id)"`
-	PaymentMethod   *Payment_methods    `orm:"rel(fk);column(payment_method_id)"`
-	Amount          float64
-	ExpenseDate     time.Time `orm:"type(datetime)"`
-	Active          int
-	DateCreated     time.Time `orm:"type(datetime)"`
-	DateModified    time.Time `orm:"type(datetime)"`
-	CreatedBy       *Users    `orm:"rel(fk)"`
-	ModifiedBy      *Users    `orm:"rel(fk)"`
+	ExpenseRecordId  int64               `orm:"auto"`
+	Category         *Payment_categories `orm:"rel(fk); column(category)"`
+	ReceiptImagePath string
+	Description      string           `orm:"size(255)"`
+	Currency         *Currencies      `orm:"rel(fk);column(currency_id)"`
+	PaymentMethod    *Payment_methods `orm:"rel(fk);column(payment_method_id)"`
+	Amount           float64
+	ExpenseDate      time.Time `orm:"type(datetime)"`
+	Active           int
+	DateCreated      time.Time `orm:"type(datetime)"`
+	DateModified     time.Time `orm:"type(datetime)"`
+	CreatedBy        *Users    `orm:"rel(fk);column(created_by)"`
+	ModifiedBy       *Users    `orm:"rel(fk);column(modified_by)"`
 }
 
 func init() {

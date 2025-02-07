@@ -15,6 +15,352 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/expenses/": {
+            "get": {
+                "tags": [
+                    "expenses"
+                ],
+                "description": "get Expense_records\n\u003cbr\u003e",
+                "operationId": "Expense_recordsController.Get All",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "description": "Fields returned. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortby",
+                        "description": "Sorted-by fields. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Limit the size of result set. Must be an integer",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Start position of result set. Must be an integer",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Expense_records"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "expenses"
+                ],
+                "description": "create Expense_records\n\u003cbr\u003e",
+                "operationId": "Expense_recordsController.Post",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Expense_records content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.ExpenseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.Expense_records"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/expenses/{id}": {
+            "get": {
+                "tags": [
+                    "expenses"
+                ],
+                "description": "get Expense_records by id\n\u003cbr\u003e",
+                "operationId": "Expense_recordsController.Get One",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The key for staticblock",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Expense_records"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "expenses"
+                ],
+                "description": "update the Expense_records\n\u003cbr\u003e",
+                "operationId": "Expense_recordsController.Put",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Expense_records content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Expense_records"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Expense_records"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "expenses"
+                ],
+                "description": "delete the Expense_records\n\u003cbr\u003e",
+                "operationId": "Expense_recordsController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
+                    }
+                }
+            }
+        },
+        "/payment-categories/": {
+            "get": {
+                "tags": [
+                    "payment-categories"
+                ],
+                "description": "get Payment_categories\n\u003cbr\u003e",
+                "operationId": "Payment_categoriesController.Get All",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "description": "Fields returned. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortby",
+                        "description": "Sorted-by fields. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Limit the size of result set. Must be an integer",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Start position of result set. Must be an integer",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment_categories"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "payment-categories"
+                ],
+                "description": "create Payment_categories\n\u003cbr\u003e",
+                "operationId": "Payment_categoriesController.Post",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Payment_categories content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment_categories"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{int} models.Payment_categories"
+                    },
+                    "403": {
+                        "description": "body is empty"
+                    }
+                }
+            }
+        },
+        "/payment-categories/{id}": {
+            "get": {
+                "tags": [
+                    "payment-categories"
+                ],
+                "description": "get Payment_categories by id\n\u003cbr\u003e",
+                "operationId": "Payment_categoriesController.Get One",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The key for staticblock",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment_categories"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "payment-categories"
+                ],
+                "description": "update the Payment_categories\n\u003cbr\u003e",
+                "operationId": "Payment_categoriesController.Put",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to update",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "body for Payment_categories content",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment_categories"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment_categories"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is not int"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "payment-categories"
+                ],
+                "description": "delete the Payment_categories\n\u003cbr\u003e",
+                "operationId": "Payment_categoriesController.Delete",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "description": "The id you want to delete",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} delete success!"
+                    },
+                    "403": {
+                        "description": "id is empty"
+                    }
+                }
+            }
+        },
         "/payment-methods/": {
             "get": {
                 "tags": [
@@ -434,6 +780,168 @@
                 }
             }
         },
+        "models.Branches": {
+            "title": "Branches",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Branch": {
+                    "type": "string"
+                },
+                "BranchId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Location": {
+                    "type": "string"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "PhoneNumber": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Currencies": {
+            "title": "Currencies",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Currency": {
+                    "type": "string"
+                },
+                "CurrencyId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Symbol": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Expense_records": {
+            "title": "Expense_records",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Amount": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "Category": {
+                    "$ref": "#/definitions/models.Payment_categories"
+                },
+                "CreatedBy": {
+                    "$ref": "#/definitions/models.Users"
+                },
+                "Currency": {
+                    "$ref": "#/definitions/models.Currencies"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "ExpenseDate": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "ExpenseRecordId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "ModifiedBy": {
+                    "$ref": "#/definitions/models.Users"
+                },
+                "PaymentMethod": {
+                    "$ref": "#/definitions/models.Payment_methods"
+                },
+                "ReceiptImagePath": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Payment_categories": {
+            "title": "Payment_categories",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Category": {
+                    "type": "string"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "PaymentCategoryId": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
         "models.Payment_history": {
             "title": "Payment_history",
             "type": "object",
@@ -603,6 +1111,148 @@
                 }
             }
         },
+        "models.UserExtraDetails": {
+            "title": "UserExtraDetails",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Branch": {
+                    "$ref": "#/definitions/models.Branches"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Nickname": {
+                    "type": "string"
+                },
+                "User": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "UserDetailsId": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Users": {
+            "title": "Users",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Address": {
+                    "type": "string"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Dob": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Email": {
+                    "type": "string"
+                },
+                "FullName": {
+                    "type": "string"
+                },
+                "Gender": {
+                    "type": "string"
+                },
+                "IdNumber": {
+                    "type": "string"
+                },
+                "IdType": {
+                    "type": "string"
+                },
+                "IsVerified": {
+                    "type": "boolean"
+                },
+                "MaritalStatus": {
+                    "type": "string"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Password": {
+                    "type": "string"
+                },
+                "PhoneNumber": {
+                    "type": "string"
+                },
+                "UserDetails": {
+                    "$ref": "#/definitions/models.UserExtraDetails"
+                },
+                "UserId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "UserType": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Username": {
+                    "type": "string"
+                }
+            }
+        },
+        "requests.ExpenseRequest": {
+            "title": "ExpenseRequest",
+            "type": "object",
+            "properties": {
+                "Amount": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "Category": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Currency": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Date": {
+                    "type": "string"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "PaymentMethod": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
         "requests.PaymentRequestDTO": {
             "title": "PaymentRequestDTO",
             "type": "object",
@@ -646,6 +1296,14 @@
         {
             "name": "payment-methods",
             "description": "Payment_methodsController operations for Payment_methods\n"
+        },
+        {
+            "name": "payment-categories",
+            "description": "Payment_categoriesController operations for Payment_categories\n"
+        },
+        {
+            "name": "expenses",
+            "description": "Expense_recordsController operations for Expense_records\n"
         }
     ]
 }

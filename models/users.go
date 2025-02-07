@@ -36,3 +36,30 @@ func (t *Users) TableName() string {
 func init() {
 	orm.RegisterModel(new(Users))
 }
+
+// GetUsersById retrieves Users by username. Returns error if
+// Id doesn't exist
+func GetUsersByUsername(username string) (v *Users, err error) {
+	o := orm.NewOrm()
+	v = &Users{Email: username}
+	if err = o.QueryTable(new(Users)).Filter("Email", username).RelatedSel().One(v); err == nil {
+		return v, nil
+	} else if err = o.QueryTable(new(Users)).Filter("PhoneNumber", username).RelatedSel().One(v); err == nil {
+		return v, nil
+	} else if err = o.QueryTable(new(Users)).Filter("Username", username).RelatedSel().One(v); err == nil {
+		return v, nil
+	}
+
+	return nil, err
+}
+
+// GetUsersById retrieves Users by Id. Returns error if
+// Id doesn't exist
+func GetUsersById(id int64) (v *Users, err error) {
+	o := orm.NewOrm()
+	v = &Users{UserId: id}
+	if err = o.QueryTable(new(Users)).Filter("UserId", id).RelatedSel().One(v); err == nil {
+		return v, nil
+	}
+	return nil, err
+}

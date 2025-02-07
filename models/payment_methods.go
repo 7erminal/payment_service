@@ -37,7 +37,7 @@ func AddPayment_methods(m *Payment_methods) (id int64, err error) {
 func GetPayment_methodsById(id int64) (v *Payment_methods, err error) {
 	o := orm.NewOrm()
 	v = &Payment_methods{PaymentMethodId: id}
-	if err = o.QueryTable(new(Payment_methods)).Filter("Id", id).RelatedSel().One(v); err == nil {
+	if err = o.QueryTable(new(Payment_methods)).Filter("PaymentMethodId", id).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err

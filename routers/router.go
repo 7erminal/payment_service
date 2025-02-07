@@ -27,7 +27,7 @@ func init() {
 		),
 		beego.NSNamespace("/payment-categories",
 			beego.NSInclude(
-				&controllers.Payment_methodsController{},
+				&controllers.Payment_categoriesController{},
 			),
 		),
 		beego.NSNamespace("/expenses",
