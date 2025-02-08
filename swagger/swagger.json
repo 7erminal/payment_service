@@ -99,6 +99,84 @@
                 }
             }
         },
+        "/expenses/branch/{id}": {
+            "get": {
+                "tags": [
+                    "expenses"
+                ],
+                "description": "get Expense_records\n\u003cbr\u003e",
+                "operationId": "Expense_recordsController.Get All By Branch",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "fields",
+                        "description": "Fields returned. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sortby",
+                        "description": "Sorted-by fields. e.g. col1,col2 ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "description": "Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ...",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Limit the size of result set. Must be an integer",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Start position of result set. Must be an integer",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/models.Expense_records"
+                        }
+                    },
+                    "403": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/expenses/count/": {
+            "get": {
+                "tags": [
+                    "expenses"
+                ],
+                "description": "get Count of expense records\n\u003cbr\u003e",
+                "operationId": "Expense_recordsController.Get Expense Record Count",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/responses.StringResponseDTO"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            }
+        },
         "/expenses/{id}": {
             "get": {
                 "tags": [
@@ -618,6 +696,26 @@
                 }
             }
         },
+        "/payments/count/": {
+            "get": {
+                "tags": [
+                    "payments"
+                ],
+                "description": "get Count of payments\n\u003cbr\u003e",
+                "operationId": "PaymentsController.Get payment Count",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/responses.StringResponseDTO"
+                        }
+                    },
+                    "403": {
+                        "description": ":id is empty"
+                    }
+                }
+            }
+        },
         "/payments/upload-payment-proof": {
             "post": {
                 "tags": [
@@ -866,6 +964,9 @@
                 "Amount": {
                     "type": "number",
                     "format": "double"
+                },
+                "Branch": {
+                    "type": "string"
                 },
                 "Category": {
                     "$ref": "#/definitions/models.Payment_categories"
@@ -1284,6 +1385,22 @@
                 "TransactionId": {
                     "type": "integer",
                     "format": "int64"
+                }
+            }
+        },
+        "responses.StringResponseDTO": {
+            "title": "StringResponseDTO",
+            "type": "object",
+            "properties": {
+                "StatusCode": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "StatusDesc": {
+                    "type": "string"
+                },
+                "Value": {
+                    "type": "string"
                 }
             }
         }

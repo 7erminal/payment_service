@@ -28,6 +28,8 @@ func (c *Expense_recordsController) URLMapping() {
 	c.Mapping("GetAll", c.GetAll)
 	c.Mapping("Put", c.Put)
 	c.Mapping("Delete", c.Delete)
+	c.Mapping("GetExpenseRecordCount", c.GetExpenseRecordCount)
+	c.Mapping("GetAllByBranch", c.GetAllByBranch)
 }
 
 // Post ...
@@ -124,8 +126,12 @@ func (c *Expense_recordsController) Post() {
 					userId, _ := strconv.ParseInt(ruser, 10, 64)
 					if user, err := models.GetUsersById(userId); err == nil {
 						amount, _ := strconv.ParseFloat(ramount, 64)
+						var branch *string
+						if user.UserDetails.Branch != nil {
+							branch = &user.UserDetails.Branch.Branch
+						}
 
-						expense := models.Expense_records{ExpenseDate: expenseDate, Category: category, ReceiptImagePath: filePath, Description: rdescription, Amount: amount, Currency: &currency, PaymentMethod: paymentMethod, Active: 1, CreatedBy: user, ModifiedBy: user}
+						expense := models.Expense_records{ExpenseDate: expenseDate, Branch: *branch, Category: category, ReceiptImagePath: filePath, Description: rdescription, Amount: amount, Currency: &currency, PaymentMethod: paymentMethod, Active: 1, CreatedBy: user, ModifiedBy: user}
 
 						if _, err := models.AddExpense_records(&expense); err == nil {
 							statusCode = 200
@@ -251,12 +257,115 @@ func (c *Expense_recordsController) GetAll() {
 		}
 	}
 
+	message := "An error occurred adding this audit request"
+	statusCode := 308
+
 	l, err := models.GetAllExpense_records(query, fields, sortby, order, offset, limit)
 	if err != nil {
-		c.Data["json"] = err.Error()
+		logs.Info("Error fetching expenses ", err.Error())
+		message = "Error fetching expenses."
+		statusCode = 608
+		resp := responses.ExpensesResponseDTO{StatusCode: statusCode, Expenses: nil, StatusDesc: message}
+		c.Data["json"] = resp
 	} else {
-		c.Data["json"] = l
+		logs.Info("Expenses fetched are ", l)
+		if l == nil {
+			l = []interface{}{}
+		}
+		statusCode = 200
+		message = "Expenses fetched successfully"
+		resp := responses.ExpensesResponseDTO{StatusCode: statusCode, Expenses: &l, StatusDesc: message}
+		c.Data["json"] = resp
 	}
+	c.ServeJSON()
+}
+
+// GetAllByBranch ...
+// @Title Get All By Branch
+// @Description get Expense_records
+// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
+// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
+// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
+// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
+// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
+// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
+// @Success 200 {object} models.Expense_records
+// @Failure 403
+// @router /branch/:id [get]
+func (c *Expense_recordsController) GetAllByBranch() {
+	var fields []string
+	var sortby []string
+	var order []string
+	var query = make(map[string]string)
+	var limit int64 = 10
+	var offset int64
+
+	// fields: col1,col2,entity.col3
+	if v := c.GetString("fields"); v != "" {
+		fields = strings.Split(v, ",")
+	}
+	// limit: 10 (default is 10)
+	if v, err := c.GetInt64("limit"); err == nil {
+		limit = v
+	}
+	// offset: 0 (default is 0)
+	if v, err := c.GetInt64("offset"); err == nil {
+		offset = v
+	}
+	// sortby: col1,col2
+	if v := c.GetString("sortby"); v != "" {
+		sortby = strings.Split(v, ",")
+	}
+	// order: desc,asc
+	if v := c.GetString("order"); v != "" {
+		order = strings.Split(v, ",")
+	}
+	// query: k:v,k:v
+	if v := c.GetString("query"); v != "" {
+		for _, cond := range strings.Split(v, ",") {
+			kv := strings.SplitN(cond, ":", 2)
+			if len(kv) != 2 {
+				c.Data["json"] = errors.New("Error: invalid query key/value pair")
+				c.ServeJSON()
+				return
+			}
+			k, v := kv[0], kv[1]
+			query[k] = v
+		}
+	}
+
+	message := "An error occurred adding this audit request"
+	statusCode := 308
+
+	idStr := c.Ctx.Input.Param(":id")
+	id, _ := strconv.ParseInt(idStr, 0, 64)
+
+	if branch, err := models.GetBranchesById(id); err == nil {
+		query = map[string]string{"branch": branch.Branch}
+		l, err := models.GetAllExpense_records(query, fields, sortby, order, offset, limit)
+		if err != nil {
+			logs.Info("Error fetching expenses ", err.Error())
+			message = "Error fetching expenses."
+			statusCode = 608
+			resp := responses.ExpensesResponseDTO{StatusCode: statusCode, Expenses: nil, StatusDesc: message}
+			c.Data["json"] = resp
+		} else {
+			if l == nil {
+				l = []interface{}{}
+			}
+			statusCode = 200
+			message = "Expenses fetched successfully"
+			resp := responses.ExpensesResponseDTO{StatusCode: statusCode, Expenses: &l, StatusDesc: message}
+			c.Data["json"] = resp
+		}
+	} else {
+		logs.Info("Error fetching expenses ", err.Error())
+		message = "Error fetching expenses."
+		statusCode = 608
+		resp := responses.ExpensesResponseDTO{StatusCode: statusCode, Expenses: nil, StatusDesc: message}
+		c.Data["json"] = resp
+	}
+
 	c.ServeJSON()
 }
 
@@ -295,6 +404,27 @@ func (c *Expense_recordsController) Delete() {
 		c.Data["json"] = "OK"
 	} else {
 		c.Data["json"] = err.Error()
+	}
+	c.ServeJSON()
+}
+
+// GetExpenseRecordCount ...
+// @Title Get Expense Record Count
+// @Description get Count of expense records
+// @Success 200 {object} responses.StringResponseDTO
+// @Failure 403 :id is empty
+// @router /count/ [get]
+func (c *Expense_recordsController) GetExpenseRecordCount() {
+	// q, err := models.GetItemsById(id)
+	v, err := models.GetExpenseRecordCount()
+	count := strconv.FormatInt(v, 10)
+	if err != nil {
+		logs.Error("Error fetching count of expenses ... ", err.Error())
+		resp := responses.StringResponseDTO{StatusCode: 301, Value: "", StatusDesc: err.Error()}
+		c.Data["json"] = resp
+	} else {
+		resp := responses.StringResponseDTO{StatusCode: 200, Value: count, StatusDesc: "Count fetched successfully"}
+		c.Data["json"] = resp
 	}
 	c.ServeJSON()
 }

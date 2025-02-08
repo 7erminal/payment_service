@@ -1,7 +1,7 @@
 package responses
 
-type StringResponseFDTO struct {
+type StringResponseDTO struct {
 	StatusCode int
-	Value      *string
+	Value      string
 	StatusDesc string
 }

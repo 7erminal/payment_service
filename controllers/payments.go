@@ -30,6 +30,7 @@ func (c *PaymentsController) URLMapping() {
 	c.Mapping("Put", c.Put)
 	c.Mapping("Delete", c.Delete)
 	c.Mapping("UploadPaymentProof", c.UploadPaymentProof)
+	c.Mapping("GetPaymentCount", c.GetPaymentCount)
 }
 
 // Post ...
@@ -106,13 +107,13 @@ func (c *PaymentsController) UploadPaymentProof() {
 		// c.Data["json"] = map[string]string{"error": "Failed to save the image file."}
 		errorMessage := "Error: Failed to save the image file"
 
-		resp := responses.StringResponseFDTO{StatusCode: http.StatusInternalServerError, Value: &errorMessage, StatusDesc: "Internal Server Error"}
+		resp := responses.StringResponseDTO{StatusCode: http.StatusInternalServerError, Value: errorMessage, StatusDesc: "Internal Server Error"}
 
 		c.Data["json"] = resp
 		c.ServeJSON()
 		return
 	} else {
-		resp := responses.StringResponseFDTO{StatusCode: 200, Value: &filePath, StatusDesc: "Images uploaded successfully"}
+		resp := responses.StringResponseDTO{StatusCode: 200, Value: filePath, StatusDesc: "Images uploaded successfully"}
 		c.Data["json"] = resp
 	}
 
@@ -192,11 +193,24 @@ func (c *PaymentsController) GetAll() {
 		}
 	}
 
+	message := "An error occurred adding this audit request"
+	statusCode := 308
+
 	l, err := models.GetAllPayments(query, fields, sortby, order, offset, limit)
 	if err != nil {
-		c.Data["json"] = err.Error()
+		logs.Info("Error fetching expenses ", err.Error())
+		message = "Error fetching expenses."
+		statusCode = 608
+		resp := responses.PaymentsResponseDTO{StatusCode: statusCode, Payments: nil, StatusDesc: message}
+		c.Data["json"] = resp
 	} else {
-		c.Data["json"] = l
+		if l == nil {
+			l = []interface{}{}
+		}
+		statusCode = 200
+		message = "Expenses fetched successfully"
+		resp := responses.PaymentsResponseDTO{StatusCode: statusCode, Payments: &l, StatusDesc: message}
+		c.Data["json"] = resp
 	}
 	c.ServeJSON()
 }
@@ -236,6 +250,27 @@ func (c *PaymentsController) Delete() {
 		c.Data["json"] = "OK"
 	} else {
 		c.Data["json"] = err.Error()
+	}
+	c.ServeJSON()
+}
+
+// GetPaymentCount ...
+// @Title Get payment Count
+// @Description get Count of payments
+// @Success 200 {object} responses.StringResponseDTO
+// @Failure 403 :id is empty
+// @router /count/ [get]
+func (c *PaymentsController) GetPaymentCount() {
+	// q, err := models.GetItemsById(id)
+	v, err := models.GetExpenseRecordCount()
+	count := strconv.FormatInt(v, 10)
+	if err != nil {
+		logs.Error("Error fetching count of expenses ... ", err.Error())
+		resp := responses.StringResponseDTO{StatusCode: 301, Value: "", StatusDesc: err.Error()}
+		c.Data["json"] = resp
+	} else {
+		resp := responses.StringResponseDTO{StatusCode: 200, Value: count, StatusDesc: "Count fetched successfully"}
+		c.Data["json"] = resp
 	}
 	c.ServeJSON()
 }

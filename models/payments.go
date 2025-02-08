@@ -39,6 +39,16 @@ func AddPayments(m *Payments) (id int64, err error) {
 	return
 }
 
+// GetOrderCount retrieves Items by Id. Returns error if
+// Id doesn't exist
+func GetPaymentCount() (c int64, err error) {
+	o := orm.NewOrm()
+	if c, err = o.QueryTable(new(Payments)).Count(); err == nil {
+		return c, nil
+	}
+	return 0, err
+}
+
 // GetPaymentsById retrieves Payments by Id. Returns error if
 // Id doesn't exist
 func GetPaymentsById(id int64) (v *Payments, err error) {
