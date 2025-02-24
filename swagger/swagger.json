@@ -164,6 +164,14 @@
                 ],
                 "description": "get Count of expense records\n\u003cbr\u003e",
                 "operationId": "Expense_recordsController.Get Expense Record Count",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
+                        "type": "string"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -703,6 +711,14 @@
                 ],
                 "description": "get Count of payments\n\u003cbr\u003e",
                 "operationId": "PaymentsController.Get payment Count",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "description": "Filter. e.g. col1:v1,col2:v2 ...",
+                        "type": "string"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -953,6 +969,118 @@
                 }
             }
         },
+        "models.Customer_categories": {
+            "title": "Customer_categories",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Category": {
+                    "type": "string"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "CustomerCategoryId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "models.Customers": {
+            "title": "Customers",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Branch": {
+                    "$ref": "#/definitions/models.Branches"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "CustomerCategory": {
+                    "$ref": "#/definitions/models.Customer_categories"
+                },
+                "CustomerId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Dob": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Email": {
+                    "type": "string"
+                },
+                "FullName": {
+                    "type": "string"
+                },
+                "IdentificationNumber": {
+                    "type": "string"
+                },
+                "IdentificationType": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "ImagePath": {
+                    "type": "string"
+                },
+                "LastTxnDate": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "Location": {
+                    "type": "string"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Nickname": {
+                    "type": "string"
+                },
+                "PhoneNumber": {
+                    "type": "string"
+                },
+                "ShopId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "User": {
+                    "$ref": "#/definitions/models.Users"
+                }
+            }
+        },
         "models.Expense_records": {
             "title": "Expense_records",
             "type": "object",
@@ -1191,18 +1319,105 @@
                     "format": "int64"
                 },
                 "PaymentMethod": {
-                    "type": "integer",
-                    "format": "int64"
+                    "$ref": "#/definitions/models.Payment_methods"
+                },
+                "PaymentProof": {
+                    "type": "string"
                 },
                 "Reciever": {
-                    "type": "integer",
-                    "format": "int64"
+                    "$ref": "#/definitions/models.Users"
                 },
                 "Sender": {
+                    "$ref": "#/definitions/models.Customers"
+                },
+                "Status": {
                     "type": "integer",
                     "format": "int64"
                 },
-                "Status": {
+                "Transaction": {
+                    "$ref": "#/definitions/models.Transactions"
+                }
+            }
+        },
+        "models.Services": {
+            "title": "Services",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "ServiceDescription": {
+                    "type": "string"
+                },
+                "ServiceId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "ServiceName": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Transactions": {
+            "title": "Transactions",
+            "type": "object",
+            "properties": {
+                "Active": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "Amount": {
+                    "type": "number",
+                    "format": "float"
+                },
+                "Branch": {
+                    "$ref": "#/definitions/models.Branches"
+                },
+                "CreatedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "DateCreated": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "DateModified": {
+                    "type": "string",
+                    "format": "datetime"
+                },
+                "ModifiedBy": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "OrderId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "ServicesId": {
+                    "$ref": "#/definitions/models.Services"
+                },
+                "StatusId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "TransactingCurrency": {
                     "type": "integer",
                     "format": "int64"
                 },
@@ -1369,6 +1584,9 @@
                 "PaymentMethod": {
                     "type": "integer",
                     "format": "int64"
+                },
+                "PaymentProofUrl": {
+                    "type": "string"
                 },
                 "Reciever": {
                     "type": "integer",

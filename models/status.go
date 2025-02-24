@@ -38,7 +38,7 @@ func AddStatus(m *Status) (id int64, err error) {
 func GetStatusById(id int64) (v *Status, err error) {
 	o := orm.NewOrm()
 	v = &Status{StatusId: id}
-	if err = o.QueryTable(new(Status)).Filter("Id", id).RelatedSel().One(v); err == nil {
+	if err = o.QueryTable(new(Status)).Filter("StatusId", id).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err

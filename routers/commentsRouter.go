@@ -70,6 +70,24 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["payment_service/controllers:Expense_recordsController"] = append(beego.GlobalControllerRouter["payment_service/controllers:Expense_recordsController"],
+        beego.ControllerComments{
+            Method: "GetAllByBranch",
+            Router: `/branch/:id`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["payment_service/controllers:Expense_recordsController"] = append(beego.GlobalControllerRouter["payment_service/controllers:Expense_recordsController"],
+        beego.ControllerComments{
+            Method: "GetExpenseRecordCount",
+            Router: `/count/`,
+            AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["payment_service/controllers:Payment_categoriesController"] = append(beego.GlobalControllerRouter["payment_service/controllers:Payment_categoriesController"],
         beego.ControllerComments{
             Method: "Post",
@@ -291,6 +309,15 @@ func init() {
             Method: "Delete",
             Router: `/:id`,
             AllowHTTPMethods: []string{"delete"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"] = append(beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"],
+        beego.ControllerComments{
+            Method: "GetPaymentCount",
+            Router: `/count/`,
+            AllowHTTPMethods: []string{"get"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})

@@ -194,11 +194,21 @@ func (c *Expense_recordsController) Post() {
 func (c *Expense_recordsController) GetOne() {
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.ParseInt(idStr, 0, 64)
+	message := "An error occurred adding this audit request"
+	statusCode := 308
 	v, err := models.GetExpense_recordsById(id)
 	if err != nil {
-		c.Data["json"] = err.Error()
+		logs.Error("An error occurred fetching expense ", err.Error())
+		message = "Error fetching expenses."
+		statusCode = 608
+		resp := responses.ExpenseResponse{StatusCode: statusCode, Expense: nil, StatusDesc: message}
+		c.Data["json"] = resp
 	} else {
 		c.Data["json"] = v
+		message = "Expense details fetched successfully."
+		statusCode = 200
+		resp := responses.ExpenseResponse{StatusCode: statusCode, Expense: v, StatusDesc: message}
+		c.Data["json"] = resp
 	}
 	c.ServeJSON()
 }
@@ -411,12 +421,29 @@ func (c *Expense_recordsController) Delete() {
 // GetExpenseRecordCount ...
 // @Title Get Expense Record Count
 // @Description get Count of expense records
+// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
 // @Success 200 {object} responses.StringResponseDTO
 // @Failure 403 :id is empty
 // @router /count/ [get]
 func (c *Expense_recordsController) GetExpenseRecordCount() {
 	// q, err := models.GetItemsById(id)
-	v, err := models.GetExpenseRecordCount()
+	var query = make(map[string]string)
+
+	// query: k:v,k:v
+	if v := c.GetString("query"); v != "" {
+		for _, cond := range strings.Split(v, ",") {
+			kv := strings.SplitN(cond, ":", 2)
+			if len(kv) != 2 {
+				c.Data["json"] = errors.New("Error: invalid query key/value pair")
+				c.ServeJSON()
+				return
+			}
+			k, v := kv[0], kv[1]
+			query[k] = v
+		}
+	}
+
+	v, err := models.GetExpenseRecordCount(query)
 	count := strconv.FormatInt(v, 10)
 	if err != nil {
 		logs.Error("Error fetching count of expenses ... ", err.Error())

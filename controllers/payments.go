@@ -43,27 +43,56 @@ func (c *PaymentsController) URLMapping() {
 func (c *PaymentsController) Post() {
 	var v requests.PaymentRequestDTO
 	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
-	logs.Info("Request received")
+	logs.Info("Request received ", v)
+	logs.Info("Transaction ID is ", v.TransactionId)
 
-	var payment models.Payments = models.Payments{TransactionId: v.TransactionId, InitiatedBy: v.InitiatedBy, Sender: v.Sender, Reciever: v.Reciever, Amount: float64(v.Amount), PaymentMethod: v.PaymentMethod, Status: 2, PaymentAccount: 0, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
-	if _, err := models.AddPayments(&payment); err == nil {
-		// Send to Account service to debit and credit
-		logs.Info("Payment added successfully")
-		logs.Info(payment)
+	if transaction, err := models.GetTransactionsById(v.TransactionId); err == nil {
+		if paymentMethod, err := models.GetPayment_methodsById(v.PaymentMethod); err == nil {
+			var sender models.Customers
+			if s, err := models.GetCustomerById(v.Sender); err == nil {
+				sender = *s
+			} else {
+				logs.Error("Error getting customer ", err.Error())
+			}
 
-		var payment_history models.Payment_history = models.Payment_history{PaymentId: payment.PaymentId, Status: payment.Status, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
-		if _, err := models.AddPayment_history(&payment_history); err == nil {
-			var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 200, Payment: &payment, StatusDesc: "Payment successfully initiated!"}
-			c.Ctx.Output.SetStatus(200)
-			c.Data["json"] = resp
+			var receiver models.Users
+			if u, err := models.GetUsersById(v.Reciever); err == nil {
+				receiver = *u
+			} else {
+				logs.Error("Error getting user ", err.Error())
+			}
+			var payment models.Payments = models.Payments{Transaction: transaction, PaymentProof: v.PaymentProofUrl, InitiatedBy: v.InitiatedBy, Sender: &sender, Reciever: &receiver, Amount: float64(v.Amount), PaymentMethod: paymentMethod, Status: 2, PaymentAccount: 0, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
+			if _, err := models.AddPayments(&payment); err == nil {
+				// Send to Account service to debit and credit
+				logs.Info("Payment added successfully")
+				logs.Info(payment)
+
+				var payment_history models.Payment_history = models.Payment_history{PaymentId: payment.PaymentId, Status: payment.Status, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
+				if _, err := models.AddPayment_history(&payment_history); err == nil {
+					var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 200, Payment: &payment, StatusDesc: "Payment successfully initiated!"}
+					c.Ctx.Output.SetStatus(200)
+					c.Data["json"] = resp
+				} else {
+					logs.Error("Unable to add payment history ", err.Error())
+					var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+					c.Data["json"] = resp
+				}
+			} else {
+				logs.Error("Unable to add payment ", err.Error())
+				var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+				c.Data["json"] = resp
+			}
 		} else {
+			logs.Error("Unable to get payment method ", err.Error())
 			var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
 			c.Data["json"] = resp
 		}
 	} else {
+		logs.Error("Unable to get transaction ", err.Error())
 		var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
 		c.Data["json"] = resp
 	}
+
 	c.ServeJSON()
 }
 
@@ -257,12 +286,14 @@ func (c *PaymentsController) Delete() {
 // GetPaymentCount ...
 // @Title Get payment Count
 // @Description get Count of payments
+// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
 // @Success 200 {object} responses.StringResponseDTO
 // @Failure 403 :id is empty
 // @router /count/ [get]
 func (c *PaymentsController) GetPaymentCount() {
 	// q, err := models.GetItemsById(id)
-	v, err := models.GetExpenseRecordCount()
+	var query = make(map[string]string)
+	v, err := models.GetExpenseRecordCount(query)
 	count := strconv.FormatInt(v, 10)
 	if err != nil {
 		logs.Error("Error fetching count of expenses ... ", err.Error())

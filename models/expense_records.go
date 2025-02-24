@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 )
 
 type Expense_records struct {
@@ -52,9 +53,16 @@ func GetExpense_recordsById(id int64) (v *Expense_records, err error) {
 
 // GetOrderCount retrieves Items by Id. Returns error if
 // Id doesn't exist
-func GetExpenseRecordCount() (c int64, err error) {
+func GetExpenseRecordCount(query map[string]string) (c int64, err error) {
 	o := orm.NewOrm()
-	if c, err = o.QueryTable(new(Expense_records)).Count(); err == nil {
+	qs := o.QueryTable(new(Expense_records))
+	for k, v := range query {
+		// rewrite dot-notation to Object__Attribute
+		k = strings.Replace(k, ".", "__", -1)
+		qs = qs.Filter(k, v)
+		logs.Info("Modified query is ", k, " and ", v)
+	}
+	if c, err = qs.Count(); err == nil {
 		return c, nil
 	}
 	return 0, err
