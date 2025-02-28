@@ -217,6 +217,7 @@ func (c *Expense_recordsController) GetOne() {
 // @Title Get All
 // @Description get Expense_records
 // @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
+// @Param	search	query	string	false	"Fields returned. e.g. transport ..."
 // @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
 // @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
 // @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
@@ -230,6 +231,7 @@ func (c *Expense_recordsController) GetAll() {
 	var sortby []string
 	var order []string
 	var query = make(map[string]string)
+	var search = make(map[string]string)
 	var limit int64 = 10
 	var offset int64
 
@@ -267,10 +269,24 @@ func (c *Expense_recordsController) GetAll() {
 		}
 	}
 
+	// search: k:v,k:v
+	if v := c.GetString("search"); v != "" {
+		for _, cond := range strings.Split(v, ",") {
+			kv := strings.SplitN(cond, ":", 2)
+			if len(kv) != 2 {
+				c.Data["json"] = errors.New("Error: invalid search key/value pair")
+				c.ServeJSON()
+				return
+			}
+			k, v := kv[0], kv[1]
+			search[k] = v
+		}
+	}
+
 	message := "An error occurred adding this audit request"
 	statusCode := 308
 
-	l, err := models.GetAllExpense_records(query, fields, sortby, order, offset, limit)
+	l, err := models.GetAllExpense_records(query, fields, sortby, order, offset, limit, search)
 	if err != nil {
 		logs.Info("Error fetching expenses ", err.Error())
 		message = "Error fetching expenses."
@@ -294,6 +310,7 @@ func (c *Expense_recordsController) GetAll() {
 // @Title Get All By Branch
 // @Description get Expense_records
 // @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
+// @Param	search	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
 // @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
 // @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
 // @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
@@ -307,6 +324,7 @@ func (c *Expense_recordsController) GetAllByBranch() {
 	var sortby []string
 	var order []string
 	var query = make(map[string]string)
+	var search = make(map[string]string)
 	var limit int64 = 10
 	var offset int64
 
@@ -344,6 +362,20 @@ func (c *Expense_recordsController) GetAllByBranch() {
 		}
 	}
 
+	// search: k:v,k:v
+	if v := c.GetString("search"); v != "" {
+		for _, cond := range strings.Split(v, ",") {
+			kv := strings.SplitN(cond, ":", 2)
+			if len(kv) != 2 {
+				c.Data["json"] = errors.New("Error: invalid search key/value pair")
+				c.ServeJSON()
+				return
+			}
+			k, v := kv[0], kv[1]
+			search[k] = v
+		}
+	}
+
 	message := "An error occurred adding this audit request"
 	statusCode := 308
 
@@ -352,7 +384,7 @@ func (c *Expense_recordsController) GetAllByBranch() {
 
 	if branch, err := models.GetBranchesById(id); err == nil {
 		query = map[string]string{"branch": branch.Branch}
-		l, err := models.GetAllExpense_records(query, fields, sortby, order, offset, limit)
+		l, err := models.GetAllExpense_records(query, fields, sortby, order, offset, limit, search)
 		if err != nil {
 			logs.Info("Error fetching expenses ", err.Error())
 			message = "Error fetching expenses."
@@ -422,12 +454,14 @@ func (c *Expense_recordsController) Delete() {
 // @Title Get Expense Record Count
 // @Description get Count of expense records
 // @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
+// @Param	search	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
 // @Success 200 {object} responses.StringResponseDTO
 // @Failure 403 :id is empty
 // @router /count/ [get]
 func (c *Expense_recordsController) GetExpenseRecordCount() {
 	// q, err := models.GetItemsById(id)
 	var query = make(map[string]string)
+	var search = make(map[string]string)
 
 	// query: k:v,k:v
 	if v := c.GetString("query"); v != "" {
@@ -443,7 +477,21 @@ func (c *Expense_recordsController) GetExpenseRecordCount() {
 		}
 	}
 
-	v, err := models.GetExpenseRecordCount(query)
+	// search: k:v,k:v
+	if v := c.GetString("search"); v != "" {
+		for _, cond := range strings.Split(v, ",") {
+			kv := strings.SplitN(cond, ":", 2)
+			if len(kv) != 2 {
+				c.Data["json"] = errors.New("Error: invalid search key/value pair")
+				c.ServeJSON()
+				return
+			}
+			k, v := kv[0], kv[1]
+			search[k] = v
+		}
+	}
+
+	v, err := models.GetExpenseRecordCount(query, search)
 	count := strconv.FormatInt(v, 10)
 	if err != nil {
 		logs.Error("Error fetching count of expenses ... ", err.Error())

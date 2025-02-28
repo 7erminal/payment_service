@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 )
 
 type Payments struct {
@@ -19,7 +20,7 @@ type Payments struct {
 	Amount         float64
 	PaymentMethod  *Payment_methods `orm:"rel(fk);column(payment_method)"`
 	PaymentProof   string           `orm:"null"`
-	Status         int64
+	Status         *Status          `orm:"rel(fk);column(status_id)"`
 	PaymentAccount int
 	DateCreated    time.Time `orm:"type(datetime)"`
 	DateModified   time.Time `orm:"type(datetime)"`
@@ -42,9 +43,34 @@ func AddPayments(m *Payments) (id int64, err error) {
 
 // GetOrderCount retrieves Items by Id. Returns error if
 // Id doesn't exist
-func GetPaymentCount() (c int64, err error) {
+func GetPaymentCount(query map[string]string, search map[string]string) (c int64, err error) {
 	o := orm.NewOrm()
-	if c, err = o.QueryTable(new(Payments)).Count(); err == nil {
+	qs := o.QueryTable(new(Payments))
+	if len(search) > 0 {
+		cond := orm.NewCondition()
+		for k, v := range search {
+			// rewrite dot-notation to Object__Attribute
+			k = strings.Replace(k, ".", "__", -1)
+			if strings.Contains(k, "isnull") {
+				qs = qs.Filter(k, (v == "true" || v == "1"))
+			} else {
+				logs.Info("Adding or statement")
+				cond = cond.Or(k+"__icontains", v)
+
+				// qs = qs.Filter(k+"__icontains", v)
+
+			}
+		}
+		logs.Info("Condition set ", qs)
+		qs = qs.SetCond(cond)
+	}
+	for k, v := range query {
+		// rewrite dot-notation to Object__Attribute
+		k = strings.Replace(k, ".", "__", -1)
+		qs = qs.Filter(k, v)
+		logs.Info("Modified query is ", k, " and ", v)
+	}
+	if c, err = qs.RelatedSel().Count(); err == nil {
 		return c, nil
 	}
 	return 0, err
@@ -64,9 +90,27 @@ func GetPaymentsById(id int64) (v *Payments, err error) {
 // GetAllPayments retrieves all Payments matches certain condition. Returns empty list if
 // no records exist
 func GetAllPayments(query map[string]string, fields []string, sortby []string, order []string,
-	offset int64, limit int64) (ml []interface{}, err error) {
+	offset int64, limit int64, search map[string]string) (ml []interface{}, err error) {
 	o := orm.NewOrm()
 	qs := o.QueryTable(new(Payments))
+	if len(search) > 0 {
+		cond := orm.NewCondition()
+		for k, v := range search {
+			// rewrite dot-notation to Object__Attribute
+			k = strings.Replace(k, ".", "__", -1)
+			if strings.Contains(k, "isnull") {
+				qs = qs.Filter(k, (v == "true" || v == "1"))
+			} else {
+				logs.Info("Adding or statement")
+				cond = cond.Or(k+"__icontains", v)
+
+				// qs = qs.Filter(k+"__icontains", v)
+
+			}
+		}
+		logs.Info("Condition set ", qs)
+		qs = qs.SetCond(cond)
+	}
 	// query k=v
 	for k, v := range query {
 		// rewrite dot-notation to Object__Attribute

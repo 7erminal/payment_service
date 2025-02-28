@@ -26,6 +26,10 @@ paths:
         description: Filter. e.g. col1:v1,col2:v2 ...
         type: string
       - in: query
+        name: search
+        description: Fields returned. e.g. transport ...
+        type: string
+      - in: query
         name: fields
         description: Fields returned. e.g. col1,col2 ...
         type: string
@@ -151,6 +155,10 @@ paths:
         description: Filter. e.g. col1:v1,col2:v2 ...
         type: string
       - in: query
+        name: search
+        description: Filter. e.g. col1:v1,col2:v2 ...
+        type: string
+      - in: query
         name: fields
         description: Fields returned. e.g. col1,col2 ...
         type: string
@@ -189,6 +197,10 @@ paths:
       parameters:
       - in: query
         name: query
+        description: Filter. e.g. col1:v1,col2:v2 ...
+        type: string
+      - in: query
+        name: search
         description: Filter. e.g. col1:v1,col2:v2 ...
         type: string
       responses:
@@ -462,6 +474,10 @@ paths:
         description: Filter. e.g. col1:v1,col2:v2 ...
         type: string
       - in: query
+        name: search
+        description: Filter. e.g. col1:v1,col2:v2 ...
+        type: string
+      - in: query
         name: fields
         description: Fields returned. e.g. col1,col2 ...
         type: string
@@ -584,6 +600,10 @@ paths:
       parameters:
       - in: query
         name: query
+        description: Filter. e.g. col1:v1,col2:v2 ...
+        type: string
+      - in: query
+        name: search
         description: Filter. e.g. col1:v1,col2:v2 ...
         type: string
       responses:
@@ -962,8 +982,7 @@ definitions:
       Sender:
         $ref: '#/definitions/models.Customers'
       Status:
-        type: integer
-        format: int64
+        $ref: '#/definitions/models.Status'
       Transaction:
         $ref: '#/definitions/models.Transactions'
   models.Services:
@@ -992,6 +1011,32 @@ definitions:
         format: int64
       ServiceName:
         type: string
+  models.Status:
+    title: Status
+    type: object
+    properties:
+      Active:
+        type: integer
+        format: int64
+      CreatedBy:
+        type: integer
+        format: int64
+      DateCreated:
+        type: string
+        format: datetime
+      DateModified:
+        type: string
+        format: datetime
+      ModifiedBy:
+        type: integer
+        format: int64
+      Status:
+        type: string
+      StatusCode:
+        type: string
+      StatusId:
+        type: integer
+        format: int64
   models.Transactions:
     title: Transactions
     type: object
