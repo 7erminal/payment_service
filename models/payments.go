@@ -20,7 +20,7 @@ type Payments struct {
 	Amount         float64
 	PaymentMethod  *Payment_methods `orm:"rel(fk);column(payment_method)"`
 	PaymentProof   string           `orm:"null"`
-	Status         *Status          `orm:"rel(fk);column(status_id)"`
+	Status         *Status          `orm:"rel(fk);column(status)"`
 	PaymentAccount int
 	DateCreated    time.Time `orm:"type(datetime)"`
 	DateModified   time.Time `orm:"type(datetime)"`

@@ -188,9 +188,27 @@ func DeleteTransactions(id int64) (err error) {
 
 // GetTransactionCount retrieves Items by Id. Returns error if
 // Id doesn't exist
-func GetTransactionCount(query map[string]string) (c int64, err error) {
+func GetTransactionCount(query map[string]string, search map[string]string) (c int64, err error) {
 	o := orm.NewOrm()
 	qs := o.QueryTable(new(Transactions)).RelatedSel()
+	if len(search) > 0 {
+		cond := orm.NewCondition()
+		for k, v := range search {
+			// rewrite dot-notation to Object__Attribute
+			k = strings.Replace(k, ".", "__", -1)
+			if strings.Contains(k, "isnull") {
+				qs = qs.Filter(k, (v == "true" || v == "1"))
+			} else {
+				logs.Info("Adding or statement")
+				cond = cond.Or(k+"__icontains", v)
+
+				// qs = qs.Filter(k+"__icontains", v)
+
+			}
+		}
+		logs.Info("Condition set ", qs)
+		qs = qs.SetCond(cond)
+	}
 	for k, v := range query {
 		// rewrite dot-notation to Object__Attribute
 		k = strings.Replace(k, ".", "__", -1)
