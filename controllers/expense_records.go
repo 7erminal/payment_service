@@ -131,7 +131,7 @@ func (c *Expense_recordsController) Post() {
 							branch = &user.UserDetails.Branch.Branch
 						}
 
-						expense := models.Expense_records{ExpenseDate: expenseDate, Branch: *branch, Category: category, ReceiptImagePath: filePath, Description: rdescription, Amount: amount, Currency: &currency, PaymentMethod: paymentMethod, Active: 1, CreatedBy: user, ModifiedBy: user}
+						expense := models.Expense_records{ExpenseDate: expenseDate, Branch: *branch, Category: category, ReceiptImagePath: filePath, Description: rdescription, Amount: amount, Currency: &currency, PaymentMethod: paymentMethod, Active: 1, CreatedBy: user, ModifiedBy: user, DateCreated: time.Now(), DateModified: time.Now()}
 
 						if _, err := models.AddExpense_records(&expense); err == nil {
 							statusCode = 200

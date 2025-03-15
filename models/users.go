@@ -9,6 +9,7 @@ import (
 type Users struct {
 	UserId        int64             `orm:"column(user_id);auto"`
 	UserDetails   *UserExtraDetails `orm:"rel(fk);column(user_details_id);null"`
+	ImagePath     string            `orm:"column(image_path);size(255);null"`
 	UserType      int               `orm:"column(user_type);null"`
 	FullName      string            `orm:"column(full_name);size(255)"`
 	Username      string            `orm:"column(username);size(40);null"`

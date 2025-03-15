@@ -1574,6 +1574,9 @@
                 "IdType": {
                     "type": "string"
                 },
+                "ImagePath": {
+                    "type": "string"
+                },
                 "IsVerified": {
                     "type": "boolean"
                 },
