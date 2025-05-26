@@ -9,4 +9,5 @@ type PaymentRequestDTO struct {
 	PaymentMethod   int64
 	TransactionId   int64
 	PaymentProofUrl string
+	ReferenceNumber string
 }

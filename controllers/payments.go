@@ -62,7 +62,7 @@ func (c *PaymentsController) Post() {
 				logs.Error("Error getting user ", err.Error())
 			}
 			if status, err := models.GetStatusByName("PENDING"); err == nil {
-				var payment models.Payments = models.Payments{Transaction: transaction, PaymentProof: v.PaymentProofUrl, InitiatedBy: v.InitiatedBy, Sender: &sender, Reciever: &receiver, Amount: float64(v.Amount), PaymentMethod: paymentMethod, Status: status, PaymentAccount: 0, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
+				var payment models.Payments = models.Payments{Transaction: transaction, PaymentProof: v.PaymentProofUrl, ReferenceNumber: v.ReferenceNumber, InitiatedBy: v.InitiatedBy, Sender: &sender, Reciever: &receiver, Amount: float64(v.Amount), PaymentMethod: paymentMethod, Status: status, PaymentAccount: 0, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
 				if _, err := models.AddPayments(&payment); err == nil {
 					// Send to Account service to debit and credit
 					logs.Info("Payment added successfully")
