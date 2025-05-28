@@ -979,6 +979,8 @@ definitions:
         type: string
       Reciever:
         $ref: '#/definitions/models.Users'
+      ReferenceNumber:
+        type: string
       Sender:
         $ref: '#/definitions/models.Customers'
       Status:
@@ -1196,6 +1198,8 @@ definitions:
       Reciever:
         type: integer
         format: int64
+      ReferenceNumber:
+        type: string
       Sender:
         type: integer
         format: int64
