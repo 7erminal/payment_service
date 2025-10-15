@@ -66,20 +66,28 @@ type HubtelPaymentRequestResponseDTO struct {
 }
 
 type HubtelNameInquiryApiResponseData struct {
-	Display string
-	Value   string
-	Amount  float32
+	IsRegistered string `json:"isRegistered"`
+	Name         string `json:"name"`
+	Status       string `json:"status"`
+	Profile      string `json:"profile"`
+}
+
+type HubtelNameInquiryResponseData struct {
+	IsRegistered string
+	Name         string
+	Status       string
+	Profile      string
 }
 
 type HubtelNameInquiryApiResponseDTO struct {
 	ResponseCode string
 	Message      string
 	Label        string
-	Data         []HubtelNameInquiryApiResponseData
+	Data         HubtelNameInquiryApiResponseData `json:"data"`
 }
 
 type HubtelNameInquiryResponseDTO struct {
 	Success    bool
-	Result     *HubtelNameInquiryApiResponseData
+	Result     *HubtelNameInquiryResponseData
 	StatusDesc string
 }

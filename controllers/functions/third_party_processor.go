@@ -74,7 +74,7 @@ func NameInquiryViaMobileMoney(c *beego.Controller, req requests.HubtelNameInqui
 
 	responseCode := false
 	responseMessage := "Error processing request"
-	result := responses.HubtelNameInquiryApiResponseData{}
+	result := responses.HubtelNameInquiryResponseData{}
 	resp := responses.HubtelNameInquiryResponseDTO{
 		Success:    responseCode,
 		StatusDesc: responseMessage,
@@ -95,10 +95,11 @@ func NameInquiryViaMobileMoney(c *beego.Controller, req requests.HubtelNameInqui
 	if requestNameInquiryResp.ResponseCode == "0000" {
 		responseCode = true
 		responseMessage = "Name inquiry successful"
-		result = responses.HubtelNameInquiryApiResponseData{
-			Display: requestNameInquiryResp.Data[0].Display,
-			Value:   requestNameInquiryResp.Data[0].Value,
-			Amount:  requestNameInquiryResp.Data[0].Amount,
+		result = responses.HubtelNameInquiryResponseData{
+			IsRegistered: requestNameInquiryResp.Data.IsRegistered,
+			Name:         requestNameInquiryResp.Data.Name,
+			Status:       requestNameInquiryResp.Data.Status,
+			Profile:      requestNameInquiryResp.Data.Profile,
 		}
 	}
 
