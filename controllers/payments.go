@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"path/filepath"
+	"payment_service/controllers/functions"
 	"payment_service/models"
 	"payment_service/structs/requests"
 	"payment_service/structs/responses"
@@ -37,7 +38,7 @@ func (c *PaymentsController) URLMapping() {
 // @Title Post
 // @Description create Payments
 // @Param	body		body 	requests.PaymentRequestDTO	true		"body for Payments content"
-// @Success 201 {int} requests.PaymentRequestDTO
+// @Success 201 {int} requests.PaymentResponseDTO
 // @Failure 403 body is empty
 // @router / [post]
 func (c *PaymentsController) Post() {
@@ -93,6 +94,147 @@ func (c *PaymentsController) Post() {
 	} else {
 		logs.Error("Unable to get transaction ", err.Error())
 		var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+		c.Data["json"] = resp
+	}
+
+	c.ServeJSON()
+}
+
+// PaymentRequest ...
+// @Title Payment Request
+// @Description create Payments
+// @Param	body		body 	requests.PaymentRequest2DTO	true		"body for Payments content"
+// @Success 201 {int} requests.PaymentResponseDTO
+// @Failure 403 body is empty
+// @router /request [post]
+func (c *PaymentsController) PaymentRequest() {
+	var v requests.PaymentRequest2DTO
+	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
+	logs.Info("Request received ", v)
+	logs.Info("Transaction ID is ", v.TransactionId)
+
+	if paymentMethod, err := models.GetPayment_methodsById(v.PaymentMethod); err == nil {
+		var sender models.Customers
+		if s, err := models.GetCustomerById(v.Sender); err == nil {
+			sender = *s
+		} else {
+			logs.Error("Error getting customer ", err.Error())
+		}
+
+		var receiver models.Users
+		if u, err := models.GetUsersById(v.Reciever); err == nil {
+			receiver = *u
+		} else {
+			logs.Error("Error getting user ", err.Error())
+		}
+		if status, err := models.GetStatusByName("PENDING"); err == nil {
+			logs.Info("Payment reference number is " + v.ReferenceNumber)
+			var payment models.Payments = models.Payments{Transaction: nil, PaymentProof: v.PaymentProofUrl, ReferenceNumber: v.ReferenceNumber, InitiatedBy: v.InitiatedBy, Sender: &sender, Reciever: &receiver, Amount: float64(v.Amount), PaymentMethod: paymentMethod, Status: status, PaymentAccount: 0, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
+			if _, err := models.AddPayments(&payment); err == nil {
+				// Send to Account service to debit and credit
+				logs.Info("Payment added successfully")
+				logs.Info(payment)
+
+				var payment_history models.Payment_history = models.Payment_history{PaymentId: payment.PaymentId, Status: payment.Status.StatusId, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
+				if _, err := models.AddPayment_history(&payment_history); err == nil {
+					var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 400, Payment: &payment, StatusDesc: "Payment successfully initiated!"}
+					if network, err := models.GetNetworksByCode(v.Operator); err == nil {
+						if v.CallThirdParty {
+							if v.Operator == "HUBTEL" {
+								customerName := sender.FullName
+								callbackurl := ""
+								if cbr, err := models.GetApplication_propertyByCode("HUBTEL_PAYMENT_CALLBACK_URL"); err == nil {
+									callbackurl = cbr.PropertyValue
+								} else {
+									logs.Error("Failed to get callback URL: %v", err)
+								}
+								momoRequest := requests.MomoPaymentRequestDTO{
+									CustomerName:       customerName,
+									CustomerMsisdn:     sender.PhoneNumber,
+									CustomerEmail:      sender.Email,
+									Channel:            network.NetworkCode,
+									Amount:             float32(v.Amount),
+									PrimaryCallbackUrl: callbackurl,
+									Description:        "Payment for " + sender.FullName,
+									ClientReference:    payment.ReferenceNumber,
+								}
+
+								if hubtelResp, err := functions.PaymentRequestViaMobileMoney(&c.Controller, momoRequest); err == nil {
+									logs.Info("Hubtel payment request response: ", hubtelResp)
+									if hubtelResp.Success {
+										resp = responses.PaymentResponseDTO{StatusCode: 200, Payment: &payment, StatusDesc: "Payment request initiated successfully!"}
+									} else {
+										resp = responses.PaymentResponseDTO{StatusCode: 805, Payment: &payment, StatusDesc: "Payment request failed! " + hubtelResp.StatusDesc}
+									}
+								}
+							}
+						}
+					} else {
+						logs.Error("Unable to get network ", err.Error())
+						resp = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+					}
+					c.Ctx.Output.SetStatus(200)
+					c.Data["json"] = resp
+				} else {
+					logs.Error("Unable to add payment history ", err.Error())
+					var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+					c.Data["json"] = resp
+				}
+			} else {
+				logs.Error("Unable to add payment ", err.Error())
+				var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+				c.Data["json"] = resp
+			}
+		}
+	} else {
+		logs.Error("Unable to get payment method ", err.Error())
+		var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+		c.Data["json"] = resp
+	}
+
+	c.ServeJSON()
+}
+
+// Name Inquiry ...
+// @Title Name Inquiry
+// @Description Get the name associated with a mobile money number
+// @Param	body		body 	requests.NameInquiryRequestDTO	true		"body for Name Inquiry content"
+// @Success 200 {object} responses.NameInquiryResponseDTO
+// @Failure 403 body is empty
+// @router /name-inquiry [post]
+func (c *PaymentsController) NameInquiry() {
+	var v requests.NameInquiryRequestDTO
+	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
+	logs.Info("Request received ", v)
+	logs.Info("Network is ", v.Channel)
+
+	if network, err := models.GetNetworksByCode(v.Channel); err == nil {
+		hubtelRequest := requests.HubtelNameInquiryRequestDTO{
+			CustomerMsisdn: v.CustomerMsisdn,
+			Channel:        network.NetworkCode,
+		}
+
+		if hubtelResp, err := functions.NameInquiryViaMobileMoney(&c.Controller, hubtelRequest); err == nil {
+			logs.Info("Hubtel name inquiry response: ", hubtelResp)
+			if hubtelResp.Success {
+				resp := responses.HubtelNameInquiryResponseDTO{Success: true, Result: hubtelResp.Result, StatusDesc: "Name inquiry successful!"}
+				c.Ctx.Output.SetStatus(200)
+				c.Data["json"] = resp
+			} else {
+				resp := responses.HubtelNameInquiryResponseDTO{Success: false, Result: nil, StatusDesc: "Name inquiry failed! " + hubtelResp.StatusDesc}
+				c.Ctx.Output.SetStatus(805)
+				c.Data["json"] = resp
+			}
+		} else {
+			logs.Error("Error making name inquiry via mobile money: ", err)
+			resp := responses.HubtelNameInquiryResponseDTO{Success: false, Result: nil, StatusDesc: "Error processing request"}
+			c.Ctx.Output.SetStatus(806)
+			c.Data["json"] = resp
+		}
+	} else {
+		logs.Error("Unable to get network ", err.Error())
+		resp := responses.HubtelNameInquiryResponseDTO{Success: false, Result: nil, StatusDesc: "Order error! " + err.Error()}
+		c.Ctx.Output.SetStatus(806)
 		c.Data["json"] = resp
 	}
 

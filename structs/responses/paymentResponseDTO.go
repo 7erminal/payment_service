@@ -38,3 +38,48 @@ type PaymentMethodsResponseDTO struct {
 	PaymentMethods *[]models.Payment_methods
 	StatusDesc     string
 }
+
+type HubtelPaymentRequestApiResponseData struct {
+	TransactionId         string
+	Description           string
+	Amount                float32
+	Charges               float32
+	AmountAfterCharges    float32
+	AmountCharged         float32
+	ClientReference       string
+	DeliveryFee           float32
+	ExternalTransactionId string
+	OrderId               string
+	PaymentDate           string
+}
+
+type HubtelPaymentRequestApiResponseDTO struct {
+	ResponseCode string
+	Data         HubtelPaymentRequestApiResponseData
+	Message      string
+}
+
+type HubtelPaymentRequestResponseDTO struct {
+	Success    bool
+	Result     *HubtelPaymentRequestApiResponseData
+	StatusDesc string
+}
+
+type HubtelNameInquiryApiResponseData struct {
+	Display string
+	Value   string
+	Amount  float32
+}
+
+type HubtelNameInquiryApiResponseDTO struct {
+	ResponseCode string
+	Message      string
+	Label        string
+	Data         []HubtelNameInquiryApiResponseData
+}
+
+type HubtelNameInquiryResponseDTO struct {
+	Success    bool
+	Result     *HubtelNameInquiryApiResponseData
+	StatusDesc string
+}

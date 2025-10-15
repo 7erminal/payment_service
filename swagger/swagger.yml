@@ -521,7 +521,7 @@ paths:
           $ref: '#/definitions/requests.PaymentRequestDTO'
       responses:
         "201":
-          description: '{int} requests.PaymentRequestDTO'
+          description: '{int} requests.PaymentResponseDTO'
         "403":
           description: body is empty
   /payments/{id}:
@@ -613,6 +613,48 @@ paths:
             $ref: '#/definitions/responses.StringResponseDTO'
         "403":
           description: :id is empty
+  /payments/name-inquiry:
+    post:
+      tags:
+      - payments
+      description: |-
+        Get the name associated with a mobile money number
+        <br>
+      operationId: PaymentsController.Name Inquiry
+      parameters:
+      - in: body
+        name: body
+        description: body for Name Inquiry content
+        required: true
+        schema:
+          $ref: '#/definitions/requests.NameInquiryRequestDTO'
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: '#/definitions/responses.NameInquiryResponseDTO'
+        "403":
+          description: body is empty
+  /payments/request:
+    post:
+      tags:
+      - payments
+      description: |-
+        create Payments
+        <br>
+      operationId: PaymentsController.Payment Request
+      parameters:
+      - in: body
+        name: body
+        description: body for Payments content
+        required: true
+        schema:
+          $ref: '#/definitions/requests.PaymentRequest2DTO'
+      responses:
+        "201":
+          description: '{int} requests.PaymentResponseDTO'
+        "403":
+          description: body is empty
   /payments/upload-payment-proof:
     post:
       tags:
@@ -952,6 +994,12 @@ definitions:
       Amount:
         type: number
         format: double
+      Charge:
+        type: number
+        format: double
+      Commission:
+        type: number
+        format: double
       CreatedBy:
         type: integer
         format: int64
@@ -967,6 +1015,8 @@ definitions:
       ModifiedBy:
         type: integer
         format: int64
+      Narration:
+        type: string
       PaymentAccount:
         type: integer
         format: int64
@@ -981,12 +1031,45 @@ definitions:
         $ref: '#/definitions/models.Users'
       ReferenceNumber:
         type: string
+      Request:
+        $ref: '#/definitions/models.Request'
       Sender:
         $ref: '#/definitions/models.Customers'
       Status:
         $ref: '#/definitions/models.Status'
       Transaction:
         $ref: '#/definitions/models.Transactions'
+  models.Request:
+    title: Request
+    type: object
+    properties:
+      CallbackResponse:
+        type: string
+      CustId:
+        $ref: '#/definitions/models.Customers'
+      DateCreated:
+        type: string
+        format: datetime
+      DateModified:
+        type: string
+        format: datetime
+      Request:
+        type: string
+      RequestAmount:
+        type: number
+        format: double
+      RequestDate:
+        type: string
+        format: datetime
+      RequestId:
+        type: integer
+        format: int64
+      RequestResponse:
+        type: string
+      RequestStatus:
+        type: string
+      RequestType:
+        type: string
   models.Services:
     title: Services
     type: object
@@ -1160,6 +1243,45 @@ definitions:
         format: int64
       Username:
         type: string
+  requests.CallbackData:
+    title: CallbackData
+    type: object
+    properties:
+      Amount:
+        type: number
+        format: double
+      AmountDebited:
+        type: number
+        format: double
+      Charges:
+        type: number
+        format: double
+      ClientReference:
+        type: string
+      Description:
+        type: string
+      ExternalTransactionId:
+        type: string
+      Meta:
+        $ref: '#/definitions/requests.CallbackMeta'
+      RecipientName:
+        type: string
+      TransactionId:
+        type: string
+  requests.CallbackMeta:
+    title: CallbackMeta
+    type: object
+    properties:
+      Commission:
+        type: string
+  requests.CallbackRequest:
+    title: CallbackRequest
+    type: object
+    properties:
+      Data:
+        $ref: '#/definitions/requests.CallbackData'
+      ResponseCode:
+        type: string
   requests.ExpenseRequest:
     title: ExpenseRequest
     type: object
@@ -1178,6 +1300,47 @@ definitions:
       Description:
         type: string
       PaymentMethod:
+        type: integer
+        format: int64
+  requests.NameInquiryRequestDTO:
+    title: NameInquiryRequestDTO
+    type: object
+    properties:
+      Channel:
+        type: string
+      CustomerMsisdn:
+        type: string
+  requests.PaymentRequest2DTO:
+    title: PaymentRequest2DTO
+    type: object
+    properties:
+      Amount:
+        type: number
+        format: float
+      CallThirdParty:
+        type: boolean
+      InitiatedBy:
+        type: integer
+        format: int64
+      Operator:
+        type: string
+      PaymentMethod:
+        type: integer
+        format: int64
+      PaymentProofUrl:
+        type: string
+      Reciever:
+        type: integer
+        format: int64
+      ReferenceNumber:
+        type: string
+      Sender:
+        type: integer
+        format: int64
+      Service:
+        type: integer
+        format: int64
+      TransactionId:
         type: integer
         format: int64
   requests.PaymentRequestDTO:
@@ -1209,6 +1372,19 @@ definitions:
       TransactionId:
         type: integer
         format: int64
+  responses.CallbackResponse:
+    title: CallbackResponse
+    type: object
+    properties:
+      Result:
+        type: string
+      StatusCode:
+        type: boolean
+      StatusMessage:
+        type: string
+  responses.NameInquiryResponseDTO:
+    title: NameInquiryResponseDTO
+    type: object
   responses.StringResponseDTO:
     title: StringResponseDTO
     type: object

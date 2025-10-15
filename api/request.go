@@ -28,19 +28,31 @@ func (r RequestMethod) String() string {
 }
 
 type Request struct {
-	BaseURL     string            ``
-	Path        string            ``
-	Method      RequestMethod     ``
-	Params      map[string]string ``
-	HeaderField map[string]string ``
+	BaseURL         string                 ``
+	Path            string                 ``
+	Method          RequestMethod          ``
+	InterfaceParams map[string]interface{} ``
+	Params          map[string]string      ``
+	FloatParams     map[string]float32     ``
+	Float64Params   map[string]float64     ``
+	IntParams       map[string]int         ``
+	Int64Params     map[string]int64       ``
+	HeaderField     map[string]string      ``
+	FileField       map[string]string      ``
 }
 
 func NewRequest(baseURL string, path string, method RequestMethod) *Request {
 	return &Request{
-		BaseURL:     baseURL,
-		Path:        path,
-		Method:      method,
-		Params:      map[string]string{},
-		HeaderField: map[string]string{},
+		BaseURL:         baseURL,
+		Path:            path,
+		Method:          method,
+		InterfaceParams: map[string]interface{}{},
+		Params:          map[string]string{},
+		FloatParams:     map[string]float32{},
+		Float64Params:   map[string]float64{},
+		IntParams:       map[string]int{},
+		Int64Params:     map[string]int64{},
+		HeaderField:     map[string]string{},
+		FileField:       map[string]string{},
 	}
 }

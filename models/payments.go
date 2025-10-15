@@ -15,9 +15,13 @@ type Payments struct {
 	PaymentId       int64 `orm:"auto"`
 	InitiatedBy     int64
 	Transaction     *Transactions `orm:"rel(fk)"`
+	Request         *Request      `orm:"rel(fk);column(request_id)"`
 	Sender          *Customers    `orm:"rel(fk);column(sender)"`
 	Reciever        *Users        `orm:"rel(fk);column(reciever)"`
 	Amount          float64
+	Commission      float64
+	Charge          float64
+	Narration       string           `orm:"size(255)"`
 	PaymentMethod   *Payment_methods `orm:"rel(fk);column(payment_method)"`
 	PaymentProof    string           `orm:"null"`
 	Status          *Status          `orm:"rel(fk);column(status)"`
@@ -83,6 +87,17 @@ func GetPaymentsById(id int64) (v *Payments, err error) {
 	o := orm.NewOrm()
 	v = &Payments{PaymentId: id}
 	if err = o.QueryTable(new(Payments)).Filter("PaymentId", id).RelatedSel().One(v); err == nil {
+		return v, nil
+	}
+	return nil, err
+}
+
+// GetPaymentsById retrieves Payments by Id. Returns error if
+// Id doesn't exist
+func GetPaymentsByReference(reference string) (v *Payments, err error) {
+	o := orm.NewOrm()
+	v = &Payments{}
+	if err = o.QueryTable(new(Payments)).Filter("ReferenceNumber", reference).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err
