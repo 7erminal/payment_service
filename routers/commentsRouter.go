@@ -25,6 +25,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["payment_service/controllers:CallbackController"] = append(beego.GlobalControllerRouter["payment_service/controllers:CallbackController"],
+        beego.ControllerComments{
+            Method: "Post",
+            Router: `/process`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["payment_service/controllers:Expense_recordsController"] = append(beego.GlobalControllerRouter["payment_service/controllers:Expense_recordsController"],
         beego.ControllerComments{
             Method: "Post",
@@ -318,6 +327,24 @@ func init() {
             Method: "GetPaymentCount",
             Router: `/count/`,
             AllowHTTPMethods: []string{"get"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"] = append(beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"],
+        beego.ControllerComments{
+            Method: "NameInquiry",
+            Router: `/name-inquiry`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"] = append(beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"],
+        beego.ControllerComments{
+            Method: "PaymentRequest",
+            Router: `/request`,
+            AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
