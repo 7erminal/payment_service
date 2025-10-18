@@ -113,6 +113,7 @@ func (c *PaymentsController) Post() {
 						}
 					}
 					paymentResp := responses.PaymentResponse{
+						PaymentId:       strconv.FormatInt(payment.PaymentId, 10),
 						Sender:          payment.Sender.FullName,
 						Reciever:        payment.Reciever.FullName,
 						Amount:          payment.Amount,

@@ -6,6 +6,7 @@ import (
 )
 
 type PaymentResponse struct {
+	PaymentId       string
 	Sender          string
 	Reciever        string
 	Amount          float64
