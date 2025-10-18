@@ -37,10 +37,11 @@ type MomoPaymentRequestDTO struct {
 	CustomerMsisdn     string
 	CustomerEmail      string
 	Operator           string
-	Amount             float32
+	Amount             float64
 	PrimaryCallbackUrl string
 	Description        string
 	ClientReference    string
+	Channel            string
 }
 
 type MomoPaymentApiRequestDTO struct {

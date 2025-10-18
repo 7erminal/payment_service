@@ -53,7 +53,7 @@ func (c *Request_moneyController) RequestMoneyViaMomo() {
 
 	if payment, err := models.GetPaymentsById(id); err == nil {
 		logs.Info("Payment found: ", payment)
-		if network, err := models.GetNetworksByCode(v.Operator); err == nil {
+		if network, err := models.GetNetworksByCode(v.Channel); err == nil {
 			if v.Operator == "HUBTEL" {
 				customerName := v.CustomerName
 				callbackurl := ""
