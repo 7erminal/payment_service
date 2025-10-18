@@ -23,7 +23,7 @@ type PaymentRequest2DTO struct {
 	SenderAccount   string
 	ReceiverAccount string
 	Currency        string
-	PaymentMethod   int64
+	PaymentMethod   string
 	TransactionId   string
 	PaymentProofUrl string
 	ReferenceNumber string

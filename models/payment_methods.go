@@ -43,6 +43,17 @@ func GetPayment_methodsById(id int64) (v *Payment_methods, err error) {
 	return nil, err
 }
 
+// GetPayment_methodsById retrieves Payment_methods by Id. Returns error if
+// Id doesn't exist
+func GetPayment_methodsByName(paymentMethod string) (v *Payment_methods, err error) {
+	o := orm.NewOrm()
+	v = &Payment_methods{}
+	if err = o.QueryTable(new(Payment_methods)).Filter("PaymentMethod", paymentMethod).RelatedSel().One(v); err == nil {
+		return v, nil
+	}
+	return nil, err
+}
+
 // GetAllPayment_methods retrieves all Payment_methods matches certain condition. Returns empty list if
 // no records exist
 func GetAllPayment_methods(query map[string]string, fields []string, sortby []string, order []string,

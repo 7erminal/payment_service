@@ -47,7 +47,7 @@ func (c *PaymentsController) Post() {
 	logs.Info("Request received ", v)
 	logs.Info("Transaction ID is ", v.TransactionId)
 
-	if paymentMethod, err := models.GetPayment_methodsById(v.PaymentMethod); err == nil {
+	if paymentMethod, err := models.GetPayment_methodsByName(v.PaymentMethod); err == nil {
 		var sender models.Customers
 		if s, err := models.GetCustomerById(v.Sender); err == nil {
 			sender = *s
