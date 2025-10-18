@@ -89,7 +89,18 @@ func (c *PaymentsController) Post() {
 				logs.Info("Payment added successfully")
 				logs.Info(payment)
 
-				var payment_history models.Payment_history = models.Payment_history{PaymentId: payment.PaymentId, Status: payment.Status.StatusId, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
+				var payment_history models.Payment_history = models.Payment_history{
+					Payment:      &payment,
+					Status:       payment.Status.StatusId,
+					Service:      payment.Service,
+					Narration:    "Payment initiated",
+					Reference:    v.Network,
+					DateCreated:  time.Now(),
+					DateModified: time.Now(),
+					CreatedBy:    v.InitiatedBy,
+					ModifiedBy:   v.InitiatedBy,
+					Active:       1,
+				}
 				if _, err := models.AddPayment_history(&payment_history); err == nil {
 					logs.Info("Payment history added successfully")
 					logs.Info("Checking if call back is required...")

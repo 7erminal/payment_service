@@ -11,9 +11,12 @@ import (
 )
 
 type Payment_history struct {
-	PaymentHistoryId int64 `orm:"auto"`
-	PaymentId        int64
+	PaymentHistoryId int64     `orm:"auto"`
+	Payment          *Payments `orm:"rel(fk);column(payment_id)"`
 	Status           int64
+	Service          string
+	Narration        string
+	Reference        string
 	DateCreated      time.Time `orm:"type(datetime)"`
 	DateModified     time.Time `orm:"type(datetime)"`
 	CreatedBy        int64
@@ -39,6 +42,17 @@ func GetPayment_historyById(id int64) (v *Payment_history, err error) {
 	o := orm.NewOrm()
 	v = &Payment_history{PaymentHistoryId: id}
 	if err = o.QueryTable(new(Payment_history)).Filter("PaymentHistoryId", id).RelatedSel().One(v); err == nil {
+		return v, nil
+	}
+	return nil, err
+}
+
+// GetPayment_historyById retrieves Payment_history by Id. Returns error if
+// Id doesn't exist
+func GetPayment_historyByPaymentId(payment Payments) (v *Payment_history, err error) {
+	o := orm.NewOrm()
+	v = &Payment_history{Payment: &payment}
+	if err = o.QueryTable(new(Payment_history)).Filter("Payment", payment).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err

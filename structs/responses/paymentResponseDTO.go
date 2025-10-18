@@ -5,6 +5,20 @@ import (
 	"time"
 )
 
+type PaymentHistoryResponse struct {
+	PaymentHistoryId int64
+	PaymentId        int64
+	Status           string
+	Service          string
+	Narration        string
+	Reference        string
+	DateCreated      time.Time
+	DateModified     time.Time
+	CreatedBy        int64
+	ModifiedBy       int64
+	Active           int
+}
+
 type PaymentResponse struct {
 	PaymentId       string
 	Sender          string
@@ -26,6 +40,8 @@ type PaymentResponse struct {
 	ProcessedDate   time.Time `orm:"type(datetime);null"`
 	Active          int
 	CallbackUrl     string
+	ClientReference string
+	PaymentHistory  *[]PaymentHistoryResponse
 }
 
 type PaymentResponseDTO struct {

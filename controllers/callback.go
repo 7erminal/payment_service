@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"payment_service/models"
 	"payment_service/structs/requests"
 	"payment_service/structs/responses"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/beego/beego/v2/core/logs"
@@ -101,6 +103,66 @@ func (c *CallbackController) Post() {
 			} else {
 				// c.Data["json"] = map[string]string{"message": "Transaction updated successfully"}
 
+				// Update payment history
+				var fields []string
+				var sortby []string
+				var order []string
+				var query = make(map[string]string)
+				var limit int64 = 10
+				var offset int64
+
+				querySearch := "Payment__PaymentId:" + strconv.FormatInt(resp.PaymentId, 10)
+				// query: k:v,k:v
+				if v := querySearch; v != "" {
+					for _, cond := range strings.Split(v, ",") {
+						kv := strings.SplitN(cond, ":", 2)
+						if len(kv) != 2 {
+							c.Data["json"] = errors.New("Error: invalid query key/value pair")
+							c.ServeJSON()
+							return
+						}
+						k, v := kv[0], kv[1]
+						query[k] = v
+					}
+				}
+
+				var paymentHistoryResponses []responses.PaymentHistoryResponse
+
+				paymentHist, err := models.GetAllPayment_history(query, fields, sortby, order, offset, limit)
+				if err == nil {
+					for _, v := range paymentHist {
+						logs.Info("Payment history found: ", v)
+						paymentHistObj := v.(*models.Payment_history)
+
+						paymentHistObj.Status = status.StatusId
+						paymentHistObj.DateModified = time.Now()
+
+						if err := models.UpdatePayment_historyById(paymentHistObj); err != nil {
+							logs.Error("Failed to update payment history: %v", err)
+						} else {
+							logs.Info("Payment history updated successfully for Payment ID: ", resp.PaymentId)
+						}
+
+						paymentHistoryResponse := responses.PaymentHistoryResponse{
+							PaymentHistoryId: paymentHistObj.PaymentHistoryId,
+							PaymentId:        paymentHistObj.Payment.PaymentId,
+							Status:           status.Status,
+							Service:          paymentHistObj.Service,
+							Narration:        paymentHistObj.Narration,
+							Reference:        paymentHistObj.Reference,
+							DateCreated:      paymentHistObj.DateCreated,
+							DateModified:     paymentHistObj.DateModified,
+							CreatedBy:        paymentHistObj.CreatedBy,
+							ModifiedBy:       paymentHistObj.ModifiedBy,
+							Active:           paymentHistObj.Active,
+						}
+						paymentHistoryResponses = append(paymentHistoryResponses, paymentHistoryResponse)
+					}
+
+				} else {
+					logs.Error("Failed to retrieve payment history: %v", err)
+				}
+
 				// Update request with callback data
 				resText, err := json.Marshal(v)
 				if err != nil {
@@ -150,6 +212,7 @@ func (c *CallbackController) Post() {
 					DateModified:    resp.DateModified,
 					ProcessedDate:   resp.DateProcessed,
 					Active:          resp.Active,
+					PaymentHistory:  &paymentHistoryResponses,
 				}
 				resp := responses.CallbackResponse{
 					StatusCode:    responseCode,

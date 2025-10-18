@@ -29,6 +29,7 @@ type PaymentRequest2DTO struct {
 	ReferenceNumber string
 	CallThirdParty  bool
 	Operator        string
+	Network         string
 }
 
 type MomoPaymentRequestDTO struct {
