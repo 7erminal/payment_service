@@ -124,13 +124,53 @@ func (c *Payment_methodsController) GetAll() {
 		resp := responses.PaymentMethodsResponseDTO{StatusCode: 608, PaymentMethods: nil, StatusDesc: "Error fetching payment methods"}
 		c.Data["json"] = resp
 	} else {
-		paymentMethods := []models.Payment_methods{}
+		paymentMethods := []*responses.PaymentMethodsResponse{}
+
+		networks := []*responses.NetworksResponse{}
+
+		n, errn := models.GetAllNetworks(query, fields, sortby, order, offset, limit)
+		if errn != nil {
+			logs.Error("Error fetching networks ", err.Error())
+			// resp := responses.PaymentMethodsResponseDTO{StatusCode: 608, PaymentMethods: nil, StatusDesc: "Error fetching payment methods"}
+			// c.Data["json"] = resp
+		} else {
+			for _, urs := range n {
+				m := urs.(models.Networks)
+
+				networkObj := &responses.NetworksResponse{
+					NetworkId:          m.NetworkId,
+					NetworkName:        m.Name,
+					NetworkCode:        m.NetworkCode,
+					NetworkReferenceId: m.NetworkReferenceId,
+					Description:        m.Description,
+					Active:             m.Active,
+				}
+
+				networks = append(networks, networkObj)
+			}
+		}
 		for _, urs := range l {
 			m := urs.(models.Payment_methods)
 
-			paymentMethods = append(paymentMethods, m)
+			pmNetworks := []*responses.NetworksResponse{}
+			// Associate networks to payment methods
+			for _, net := range networks {
+				// Here you can implement logic to associate networks based on your criteria
+				// For demonstration, we are associating all networks to each payment method
+				if strings.Contains(net.NetworkCode, strings.ToLower(m.PaymentMethod)) {
+					pmNetworks = append(pmNetworks, net)
+				}
+			}
+
+			paymentMethodObj := responses.PaymentMethodsResponse{
+				PaymentMethodId: m.PaymentMethodId,
+				PaymentMethod:   m.PaymentMethod,
+				Networks:        pmNetworks,
+			}
+
+			paymentMethods = append(paymentMethods, &paymentMethodObj)
 		}
-		resp := responses.PaymentMethodsResponseDTO{StatusCode: 200, PaymentMethods: &paymentMethods, StatusDesc: "Successfully fetched payment methods"}
+		resp := responses.PaymentMethodsResponseDTO{StatusCode: 200, PaymentMethods: paymentMethods, StatusDesc: "Successfully fetched payment methods"}
 		c.Data["json"] = resp
 	}
 	c.ServeJSON()

@@ -77,7 +77,7 @@ type RequestMoneyResponseDTO struct {
 
 type PaymentMethodsResponseDTO struct {
 	StatusCode     int
-	PaymentMethods *[]models.Payment_methods
+	PaymentMethods []*PaymentMethodsResponse
 	StatusDesc     string
 }
 
@@ -132,4 +132,19 @@ type HubtelNameInquiryResponseDTO struct {
 	Success    bool
 	Result     *HubtelNameInquiryResponseData
 	StatusDesc string
+}
+
+type PaymentMethodsResponse struct {
+	PaymentMethodId int64
+	PaymentMethod   string
+	Networks        []*NetworksResponse
+}
+
+type NetworksResponse struct {
+	NetworkId          int64
+	NetworkName        string
+	NetworkCode        string
+	NetworkReferenceId string
+	Description        string
+	Active             int
 }
