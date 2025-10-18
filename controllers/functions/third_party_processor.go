@@ -10,7 +10,7 @@ import (
 	beego "github.com/beego/beego/v2/server/web"
 )
 
-func PaymentRequestViaMobileMoney(c *beego.Controller, req requests.MomoPaymentRequestDTO) (responses.HubtelPaymentRequestResponseDTO, error) {
+func PaymentRequestViaMobileMoney(c *beego.Controller, req requests.MomoPaymentApiRequestDTO) (responses.HubtelPaymentRequestResponseDTO, error) {
 	//do something
 
 	momoRequest := requests.HubtelMomoPaymentRequestDTO{

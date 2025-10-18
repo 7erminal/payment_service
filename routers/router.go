@@ -40,6 +40,11 @@ func init() {
 				&controllers.CallbackController{},
 			),
 		),
+		beego.NSNamespace("/request-money",
+			beego.NSInclude(
+				&controllers.Request_moneyController{},
+			),
+		),
 	)
 
 	beego.AddNamespace(ns)

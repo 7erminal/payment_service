@@ -57,7 +57,7 @@ func (c *CallbackController) Post() {
 		resp := responses.CallbackResponse{
 			StatusCode:    responseCode,
 			StatusMessage: responseMessage,
-			Result:        "FAILED",
+			Result:        nil,
 		}
 		c.Data["json"] = resp
 		c.Ctx.Output.SetStatus(400)
@@ -94,7 +94,7 @@ func (c *CallbackController) Post() {
 				resp := responses.CallbackResponse{
 					StatusCode:    responseCode,
 					StatusMessage: responseMessage,
-					Result:        "FAILED",
+					Result:        nil,
 				}
 				c.Data["json"] = resp
 				c.Ctx.Output.SetStatus(200)
@@ -131,10 +131,30 @@ func (c *CallbackController) Post() {
 
 				responseCode = true
 				responseMessage = "Transaction updated successfully"
+				payment := responses.PaymentResponse{
+					Sender:          resp.Sender.FullName,
+					Reciever:        resp.Reciever.FullName,
+					Amount:          resp.Amount,
+					Commission:      resp.Commission,
+					Charge:          resp.Charge,
+					OtherCharge:     resp.OtherCharge,
+					PaymentAmount:   resp.PaymentAmount,
+					PaymentMethod:   resp.PaymentMethod,
+					PaymentProof:    resp.PaymentProof,
+					Status:          resp.Status,
+					Service:         resp.Service,
+					SenderAccount:   resp.SenderAccount,
+					ReceiverAccount: resp.ReceiverAccount,
+					ReferenceNumber: resp.ReferenceNumber,
+					DateCreated:     resp.DateCreated,
+					DateModified:    resp.DateModified,
+					ProcessedDate:   resp.DateProcessed,
+					Active:          resp.Active,
+				}
 				resp := responses.CallbackResponse{
 					StatusCode:    responseCode,
 					StatusMessage: responseMessage,
-					Result:        "SUCCESS",
+					Result:        &payment,
 				}
 				c.Data["json"] = resp
 				c.Ctx.Output.SetStatus(200)
@@ -146,7 +166,7 @@ func (c *CallbackController) Post() {
 			resp := responses.CallbackResponse{
 				StatusCode:    responseCode,
 				StatusMessage: responseMessage,
-				Result:        "FAILED",
+				Result:        nil,
 			}
 			c.Data["json"] = resp
 			// c.Data["json"] = map[string]string{"error": "Transaction not found"}
@@ -160,7 +180,7 @@ func (c *CallbackController) Post() {
 		resp := responses.CallbackResponse{
 			StatusCode:    responseCode,
 			StatusMessage: responseMessage,
-			Result:        "FAILED",
+			Result:        nil,
 		}
 		c.Data["json"] = resp
 		// c.Data["json"] = map[string]string{"error": "Transaction not found"}

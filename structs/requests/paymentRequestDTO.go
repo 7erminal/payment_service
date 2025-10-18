@@ -17,11 +17,14 @@ type PaymentRequestDTO struct {
 type PaymentRequest2DTO struct {
 	InitiatedBy     int64
 	Amount          float32
-	Service         int64
+	Service         string
 	Sender          int64
 	Reciever        int64
+	SenderAccount   string
+	ReceiverAccount string
+	Currency        string
 	PaymentMethod   int64
-	TransactionId   int64
+	TransactionId   string
 	PaymentProofUrl string
 	ReferenceNumber string
 	CallThirdParty  bool
@@ -29,6 +32,18 @@ type PaymentRequest2DTO struct {
 }
 
 type MomoPaymentRequestDTO struct {
+	PaymentId          string
+	CustomerName       string
+	CustomerMsisdn     string
+	CustomerEmail      string
+	Operator           string
+	Amount             float32
+	PrimaryCallbackUrl string
+	Description        string
+	ClientReference    string
+}
+
+type MomoPaymentApiRequestDTO struct {
 	Payment            models.Payments
 	CustomerName       string
 	CustomerMsisdn     string

@@ -19,6 +19,9 @@ type Payments struct {
 	Sender          *Customers    `orm:"rel(fk);column(sender)"`
 	Service         string        `orm:"size(128)"`
 	Reciever        *Users        `orm:"rel(fk);column(reciever)"`
+	SenderAccount   string        `orm:"size(128);null"`
+	ReceiverAccount string        `orm:"size(128);null"`
+	PaymentCurrency string        `orm:"size(10)"`
 	Amount          float64
 	Commission      float64
 	Charge          float64
@@ -28,7 +31,7 @@ type Payments struct {
 	PaymentMethod   *Payment_methods `orm:"rel(fk);column(payment_method)"`
 	PaymentProof    string           `orm:"null"`
 	Status          *Status          `orm:"rel(fk);column(status)"`
-	PaymentAccount  int
+	PaymentAccount  string
 	ReferenceNumber string
 	DateCreated     time.Time `orm:"type(datetime)"`
 	DateModified    time.Time `orm:"type(datetime)"`

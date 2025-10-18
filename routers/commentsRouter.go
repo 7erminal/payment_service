@@ -342,17 +342,17 @@ func init() {
 
     beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"] = append(beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"],
         beego.ControllerComments{
-            Method: "PaymentRequest",
-            Router: `/request`,
+            Method: "UploadPaymentProof",
+            Router: `/upload-payment-proof`,
             AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,
             Params: nil})
 
-    beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"] = append(beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"],
+    beego.GlobalControllerRouter["payment_service/controllers:Request_moneyController"] = append(beego.GlobalControllerRouter["payment_service/controllers:Request_moneyController"],
         beego.ControllerComments{
-            Method: "UploadPaymentProof",
-            Router: `/upload-payment-proof`,
+            Method: "RequestMoneyViaMomo",
+            Router: `/momo/`,
             AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,

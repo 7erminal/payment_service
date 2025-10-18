@@ -37,77 +37,11 @@ func (c *PaymentsController) URLMapping() {
 // Post ...
 // @Title Post
 // @Description create Payments
-// @Param	body		body 	requests.PaymentRequestDTO	true		"body for Payments content"
+// @Param	body		body 	requests.PaymentRequest2DTO	true		"body for Payments content"
 // @Success 201 {int} requests.PaymentResponseDTO
 // @Failure 403 body is empty
 // @router / [post]
 func (c *PaymentsController) Post() {
-	var v requests.PaymentRequestDTO
-	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
-	logs.Info("Request received ", v)
-	logs.Info("Transaction ID is ", v.TransactionId)
-
-	if transaction, err := models.GetTransactionsById(v.TransactionId); err == nil {
-		if paymentMethod, err := models.GetPayment_methodsById(v.PaymentMethod); err == nil {
-			var sender models.Customers
-			if s, err := models.GetCustomerById(v.Sender); err == nil {
-				sender = *s
-			} else {
-				logs.Error("Error getting customer ", err.Error())
-			}
-
-			var receiver models.Users
-			if u, err := models.GetUsersById(v.Reciever); err == nil {
-				receiver = *u
-			} else {
-				logs.Error("Error getting user ", err.Error())
-			}
-			if status, err := models.GetStatusByName("PENDING"); err == nil {
-				logs.Info("Payment reference number is " + v.ReferenceNumber)
-				var payment models.Payments = models.Payments{Transaction: transaction, PaymentProof: v.PaymentProofUrl, ReferenceNumber: v.ReferenceNumber, InitiatedBy: v.InitiatedBy, Sender: &sender, Reciever: &receiver, Amount: float64(v.Amount), PaymentMethod: paymentMethod, Status: status, PaymentAccount: 0, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
-				if _, err := models.AddPayments(&payment); err == nil {
-					// Send to Account service to debit and credit
-					logs.Info("Payment added successfully")
-					logs.Info(payment)
-
-					var payment_history models.Payment_history = models.Payment_history{PaymentId: payment.PaymentId, Status: payment.Status.StatusId, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
-					if _, err := models.AddPayment_history(&payment_history); err == nil {
-						var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 200, Payment: &payment, StatusDesc: "Payment successfully initiated!"}
-						c.Ctx.Output.SetStatus(200)
-						c.Data["json"] = resp
-					} else {
-						logs.Error("Unable to add payment history ", err.Error())
-						var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
-						c.Data["json"] = resp
-					}
-				} else {
-					logs.Error("Unable to add payment ", err.Error())
-					var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
-					c.Data["json"] = resp
-				}
-			}
-		} else {
-			logs.Error("Unable to get payment method ", err.Error())
-			var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
-			c.Data["json"] = resp
-		}
-	} else {
-		logs.Error("Unable to get transaction ", err.Error())
-		var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
-		c.Data["json"] = resp
-	}
-
-	c.ServeJSON()
-}
-
-// PaymentRequest ...
-// @Title Payment Request
-// @Description create Payments
-// @Param	body		body 	requests.PaymentRequest2DTO	true		"body for Payments content"
-// @Success 201 {int} requests.PaymentResponseDTO
-// @Failure 403 body is empty
-// @router /request [post]
-func (c *PaymentsController) PaymentRequest() {
 	var v requests.PaymentRequest2DTO
 	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
 	logs.Info("Request received ", v)
@@ -129,7 +63,27 @@ func (c *PaymentsController) PaymentRequest() {
 		}
 		if status, err := models.GetStatusByName("PENDING"); err == nil {
 			logs.Info("Payment reference number is " + v.ReferenceNumber)
-			var payment models.Payments = models.Payments{Transaction: nil, PaymentProof: v.PaymentProofUrl, ReferenceNumber: v.ReferenceNumber, InitiatedBy: v.InitiatedBy, Sender: &sender, Reciever: &receiver, Amount: float64(v.Amount), PaymentMethod: paymentMethod, Status: status, PaymentAccount: 0, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
+			var payment models.Payments = models.Payments{
+				Transaction:     nil,
+				PaymentProof:    v.PaymentProofUrl,
+				ReferenceNumber: v.ReferenceNumber,
+				InitiatedBy:     v.InitiatedBy,
+				Sender:          &sender,
+				Reciever:        &receiver,
+				Amount:          float64(v.Amount),
+				PaymentMethod:   paymentMethod,
+				Status:          status,
+				PaymentAccount:  "",
+				DateCreated:     time.Now(),
+				DateModified:    time.Now(),
+				DateProcessed:   time.Now(),
+				CreatedBy:       v.InitiatedBy,
+				ModifiedBy:      v.InitiatedBy,
+				Active:          1,
+				Service:         v.Service,
+				SenderAccount:   v.SenderAccount,
+				ReceiverAccount: v.ReceiverAccount,
+			}
 			if _, err := models.AddPayments(&payment); err == nil {
 				// Send to Account service to debit and credit
 				logs.Info("Payment added successfully")
@@ -137,42 +91,28 @@ func (c *PaymentsController) PaymentRequest() {
 
 				var payment_history models.Payment_history = models.Payment_history{PaymentId: payment.PaymentId, Status: payment.Status.StatusId, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
 				if _, err := models.AddPayment_history(&payment_history); err == nil {
-					var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 400, Payment: &payment, StatusDesc: "Payment successfully initiated!"}
-					if network, err := models.GetNetworksByCode(v.Operator); err == nil {
-						if v.CallThirdParty {
-							if v.Operator == "HUBTEL" {
-								customerName := sender.FullName
-								callbackurl := ""
-								if cbr, err := models.GetApplication_propertyByCode("HUBTEL_PAYMENT_CALLBACK_URL"); err == nil {
-									callbackurl = cbr.PropertyValue
-								} else {
-									logs.Error("Failed to get callback URL: %v", err)
-								}
-								momoRequest := requests.MomoPaymentRequestDTO{
-									CustomerName:       customerName,
-									CustomerMsisdn:     sender.PhoneNumber,
-									CustomerEmail:      sender.Email,
-									Channel:            network.NetworkCode,
-									Amount:             float32(v.Amount),
-									PrimaryCallbackUrl: callbackurl,
-									Description:        "Payment for " + sender.FullName,
-									ClientReference:    payment.ReferenceNumber,
-								}
-
-								if hubtelResp, err := functions.PaymentRequestViaMobileMoney(&c.Controller, momoRequest); err == nil {
-									logs.Info("Hubtel payment request response: ", hubtelResp)
-									if hubtelResp.Success {
-										resp = responses.PaymentResponseDTO{StatusCode: 200, Payment: &payment, StatusDesc: "Payment request initiated successfully!"}
-									} else {
-										resp = responses.PaymentResponseDTO{StatusCode: 805, Payment: &payment, StatusDesc: "Payment request failed! " + hubtelResp.StatusDesc}
-									}
-								}
-							}
-						}
-					} else {
-						logs.Error("Unable to get network ", err.Error())
-						resp = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+					paymentResp := responses.PaymentResponse{
+						Sender:          payment.Sender.FullName,
+						Reciever:        payment.Reciever.FullName,
+						Amount:          payment.Amount,
+						Commission:      payment.Commission,
+						Charge:          payment.Charge,
+						OtherCharge:     payment.OtherCharge,
+						PaymentAmount:   payment.PaymentAmount,
+						PaymentMethod:   payment.PaymentMethod,
+						PaymentProof:    payment.PaymentProof,
+						Status:          payment.Status,
+						Service:         payment.Service,
+						SenderAccount:   payment.SenderAccount,
+						ReceiverAccount: payment.ReceiverAccount,
+						ReferenceNumber: payment.ReferenceNumber,
+						DateCreated:     payment.DateCreated,
+						DateModified:    payment.DateModified,
+						ProcessedDate:   payment.DateProcessed,
+						Active:          payment.Active,
 					}
+					var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 400, Payment: &paymentResp, StatusDesc: "Payment successfully initiated!"}
+
 					c.Ctx.Output.SetStatus(200)
 					c.Data["json"] = resp
 				} else {
