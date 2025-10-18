@@ -57,6 +57,15 @@ func GetApplication_propertyByCode(code string) (v *Application_property, err er
 	return nil, err
 }
 
+func GetApplication_propertiesByCode(code string) (v *[]Application_property, err error) {
+	o := orm.NewOrm()
+	if _, err = o.QueryTable(new(Application_property)).Filter("PropertyCode__icontains", code).RelatedSel().All(v); err == nil {
+
+		return v, nil
+	}
+	return nil, err
+}
+
 // GetAllApplication_property retrieves all Application_property matches certain condition. Returns empty list if
 // no records exist
 func GetAllApplication_property(query map[string]string, fields []string, sortby []string, order []string,

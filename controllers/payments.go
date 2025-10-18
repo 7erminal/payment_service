@@ -91,6 +91,27 @@ func (c *PaymentsController) Post() {
 
 				var payment_history models.Payment_history = models.Payment_history{PaymentId: payment.PaymentId, Status: payment.Status.StatusId, DateCreated: time.Now(), DateModified: time.Now(), CreatedBy: v.InitiatedBy, ModifiedBy: v.InitiatedBy, Active: 1}
 				if _, err := models.AddPayment_history(&payment_history); err == nil {
+					logs.Info("Payment history added successfully")
+					logs.Info("Checking if call back is required...")
+					callbackUrl := ""
+					if v.CallThirdParty {
+						logs.Info("Callback required")
+						operatorCaps := strings.ToUpper(v.Operator)
+						serviceCaps := strings.ToUpper("PAYMENT")
+						operator, err := models.GetOperatorByName(operatorCaps)
+						if err == nil {
+							appProperty, err := models.GetApplication_propertyByCode(strings.ToUpper(operator.OperatorName) + "_" + serviceCaps + "_CALLBACK_URL")
+
+							if err == nil && appProperty != nil {
+								callbackUrl = appProperty.PropertyValue
+								logs.Info("Callback URL found: " + callbackUrl)
+							} else {
+								logs.Error("Callback URL not found for operator "+operator.OperatorName+" and service "+serviceCaps+": ", err)
+							}
+						} else {
+							logs.Error("Operator not found for callback: ", err)
+						}
+					}
 					paymentResp := responses.PaymentResponse{
 						Sender:          payment.Sender.FullName,
 						Reciever:        payment.Reciever.FullName,
@@ -110,6 +131,7 @@ func (c *PaymentsController) Post() {
 						DateModified:    payment.DateModified,
 						ProcessedDate:   payment.DateProcessed,
 						Active:          payment.Active,
+						CallbackUrl:     callbackUrl,
 					}
 					var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 400, Payment: &paymentResp, StatusDesc: "Payment successfully initiated!"}
 

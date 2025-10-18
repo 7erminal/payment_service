@@ -24,6 +24,7 @@ type PaymentResponse struct {
 	DateModified    time.Time `orm:"type(datetime)"`
 	ProcessedDate   time.Time `orm:"type(datetime);null"`
 	Active          int
+	CallbackUrl     string
 }
 
 type PaymentResponseDTO struct {
