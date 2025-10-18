@@ -35,6 +35,11 @@ func init() {
 				&controllers.Expense_recordsController{},
 			),
 		),
+		beego.NSNamespace("/callback",
+			beego.NSInclude(
+				&controllers.CallbackController{},
+			),
+		),
 	)
 
 	beego.AddNamespace(ns)

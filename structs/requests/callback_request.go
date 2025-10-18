@@ -5,18 +5,20 @@ type CallbackMeta struct {
 }
 
 type CallbackData struct {
-	AmountDebited         float64
+	AmountCharged         float64
 	TransactionId         *string
 	ClientReference       *string
 	Description           *string
 	ExternalTransactionId *string
 	Amount                float64
 	Charges               float64
-	Meta                  *CallbackMeta
-	RecipientName         *string
+	AmountAfterCharges    float64
+	PaymentDate           *string
+	OrderId               *string
 }
 
 type CallbackRequest struct {
 	ResponseCode string
 	Data         CallbackData
+	Message      string
 }

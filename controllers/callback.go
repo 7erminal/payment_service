@@ -49,7 +49,22 @@ func (c *CallbackController) Post() {
 		transactionId = *v.Data.ClientReference
 	}
 	logs.Info("About to get transaction by ID: ", transactionId)
-	if resp, err := models.GetPaymentsByReference(transactionId); err == nil {
+	id, err := strconv.ParseInt(transactionId, 10, 64)
+	if err != nil {
+		logs.Error("Invalid transaction ID: %v", err)
+		responseCode = false
+		responseMessage = "Invalid transaction ID"
+		resp := responses.CallbackResponse{
+			StatusCode:    responseCode,
+			StatusMessage: responseMessage,
+			Result:        "FAILED",
+		}
+		c.Data["json"] = resp
+		c.Ctx.Output.SetStatus(400)
+		c.ServeJSON()
+		return
+	}
+	if resp, err := models.GetPaymentsById(id); err == nil {
 		logs.Info("Request ID: ", resp.PaymentId)
 		if resp != nil {
 			// Update the transaction status
@@ -59,7 +74,6 @@ func (c *CallbackController) Post() {
 			} else {
 				// Handle error in callback
 				statusCode = "FAILED"
-
 			}
 
 			status, err := models.GetStatusByName(statusCode)
@@ -68,16 +82,6 @@ func (c *CallbackController) Post() {
 				resp.DateModified = time.Now()
 				if v.Data.ExternalTransactionId != nil {
 					resp.ReferenceNumber = *v.Data.ExternalTransactionId
-				}
-				if v.Data.Meta != nil {
-					commission, err := strconv.ParseFloat(v.Data.Meta.Commission, 64)
-					if err != nil {
-						c.Data["json"] = map[string]string{"error": "Invalid commission value"}
-						c.Ctx.Output.SetStatus(400)
-						c.ServeJSON()
-						return
-					}
-					resp.Commission = commission
 				}
 			} else {
 				c.Data["json"] = map[string]string{"error": "Status code not found"}
