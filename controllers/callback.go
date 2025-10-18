@@ -44,9 +44,9 @@ func (c *CallbackController) Post() {
 
 	// Handle successful callback
 	transactionId := ""
-	if v.Data.ClientReference != nil {
-		logs.Info("Transaction ID found in request: ", *v.Data.ClientReference)
-		transactionId = *v.Data.ClientReference
+	if v.ClientReference != nil {
+		logs.Info("Transaction ID found in request: ", *v.ClientReference)
+		transactionId = *v.ClientReference
 	}
 	logs.Info("About to get transaction by ID: ", transactionId)
 	id, err := strconv.ParseInt(transactionId, 10, 64)
@@ -68,21 +68,20 @@ func (c *CallbackController) Post() {
 		logs.Info("Request ID: ", resp.PaymentId)
 		if resp != nil {
 			// Update the transaction status
-			statusCode := "SUCCESS"
-			if v.ResponseCode == "0000" {
-				statusCode = "SUCCESS"
-			} else {
-				// Handle error in callback
-				statusCode = "FAILED"
-			}
+			statusCode := v.Status
+			logs.Info("Updating transaction status to: ", statusCode)
 
 			status, err := models.GetStatusByName(statusCode)
 			if err == nil {
 				resp.Status = status
 				resp.DateModified = time.Now()
-				if v.Data.ExternalTransactionId != nil {
-					resp.ReferenceNumber = *v.Data.ExternalTransactionId
+				if v.ExternalTransactionId != nil {
+					resp.ReferenceNumber = *v.ExternalTransactionId
 				}
+				resp.DateProcessed = time.Now()
+				resp.Charge = v.Charges
+				resp.OtherCharge = v.AmountCharged
+				resp.PaymentAmount = v.Amount
 			} else {
 				c.Data["json"] = map[string]string{"error": "Status code not found"}
 				c.Ctx.Output.SetStatus(404)

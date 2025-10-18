@@ -17,10 +17,13 @@ type Payments struct {
 	Transaction     *Transactions `orm:"rel(fk)"`
 	Request         *Request      `orm:"rel(fk);column(request_id)"`
 	Sender          *Customers    `orm:"rel(fk);column(sender)"`
+	Service         string        `orm:"size(128)"`
 	Reciever        *Users        `orm:"rel(fk);column(reciever)"`
 	Amount          float64
 	Commission      float64
 	Charge          float64
+	OtherCharge     float64
+	PaymentAmount   float64
 	Narration       string           `orm:"size(255)"`
 	PaymentMethod   *Payment_methods `orm:"rel(fk);column(payment_method)"`
 	PaymentProof    string           `orm:"null"`
@@ -29,6 +32,7 @@ type Payments struct {
 	ReferenceNumber string
 	DateCreated     time.Time `orm:"type(datetime)"`
 	DateModified    time.Time `orm:"type(datetime)"`
+	DateProcessed   time.Time `orm:"type(datetime);null"`
 	CreatedBy       int64
 	ModifiedBy      int64
 	Active          int

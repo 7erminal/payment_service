@@ -18,7 +18,15 @@ type CallbackData struct {
 }
 
 type CallbackRequest struct {
-	ResponseCode string
-	Data         CallbackData
-	Message      string
+	AmountCharged         float64
+	TransactionId         *string
+	ClientReference       *string
+	Description           *string
+	ExternalTransactionId *string
+	Amount                float64
+	Charges               float64
+	AmountAfterCharges    float64
+	PaymentDate           *string
+	OrderId               *string
+	Status                string
 }
