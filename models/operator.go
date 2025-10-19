@@ -53,7 +53,7 @@ func GetOperatorById(id int64) (v *Operator, err error) {
 func GetOperatorByName(name string) (v *Operator, err error) {
 	o := orm.NewOrm()
 	v = &Operator{}
-	if err = o.QueryTable(new(Operator)).Filter("Name", name).RelatedSel().One(v); err == nil {
+	if err = o.QueryTable(new(Operator)).Filter("OperatorName", name).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err
