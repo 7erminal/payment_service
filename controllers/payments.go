@@ -109,6 +109,7 @@ func (c *PaymentsController) Post() {
 							Reciever:        &receiver,
 							Amount:          float64(v.Amount),
 							PaymentMethod:   paymentMethod,
+							PaymentCurrency: v.Currency,
 							Status:          status,
 							PaymentAccount:  "",
 							DateCreated:     time.Now(),
