@@ -14,11 +14,11 @@ import (
 type Payments struct {
 	PaymentId       int64 `orm:"auto"`
 	InitiatedBy     int64
-	Transaction     *Transactions `orm:"rel(fk)"`
-	Request         *Request      `orm:"rel(fk);column(request_id)"`
-	Sender          *Customers    `orm:"rel(fk);column(sender)"`
+	Transaction     *Transactions `orm:"rel(fk);null"`
+	Request         *Request      `orm:"rel(fk);null;column(request_id)"`
+	Sender          *Customers    `orm:"rel(fk);null;column(sender)"`
 	Service         string        `orm:"size(128)"`
-	Reciever        *Users        `orm:"rel(fk);column(reciever)"`
+	Reciever        *Users        `orm:"rel(fk);null;column(reciever)"`
 	SenderAccount   string        `orm:"size(128);null"`
 	ReceiverAccount string        `orm:"size(128);null"`
 	PaymentCurrency string        `orm:"size(10)"`
@@ -28,9 +28,9 @@ type Payments struct {
 	OtherCharge     float64
 	PaymentAmount   float64
 	Narration       string           `orm:"size(255)"`
-	PaymentMethod   *Payment_methods `orm:"rel(fk);column(payment_method)"`
+	PaymentMethod   *Payment_methods `orm:"rel(fk);null;column(payment_method)"`
 	PaymentProof    string           `orm:"null"`
-	Status          *Status          `orm:"rel(fk);column(status)"`
+	Status          *Status          `orm:"rel(fk);null;column(status)"`
 	PaymentAccount  string
 	ReferenceNumber string
 	DateCreated     time.Time `orm:"type(datetime)"`
