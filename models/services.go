@@ -23,7 +23,7 @@ type Services struct {
 }
 
 func (t *Services) TableName() string {
-	return "service"
+	return "services"
 }
 
 func init() {
