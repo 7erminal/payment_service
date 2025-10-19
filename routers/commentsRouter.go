@@ -333,6 +333,15 @@ func init() {
 
     beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"] = append(beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"],
         beego.ControllerComments{
+            Method: "SendMoneyViaMomo",
+            Router: `/momo/`,
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"] = append(beego.GlobalControllerRouter["payment_service/controllers:PaymentsController"],
+        beego.ControllerComments{
             Method: "NameInquiry",
             Router: `/name-inquiry`,
             AllowHTTPMethods: []string{"post"},
