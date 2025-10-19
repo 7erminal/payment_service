@@ -12,18 +12,8 @@ import (
 )
 
 type Transactions struct {
-	TransactionId       int64 `orm:"auto"`
-	OrderId             int64
-	Branch              *Branches `orm:"rel(fk)"`
-	Amount              float32
-	TransactingCurrency int64
-	StatusId            int64
-	DateCreated         time.Time `orm:"type(datetime)"`
-	DateModified        time.Time `orm:"type(datetime)"`
-	CreatedBy           int
-	ModifiedBy          int
-	Active              int
-	ServicesId          *Services `orm:"rel(fk);column(service_id)"`
+	TransactionId int64 `orm:"auto"`
+	Amount        float32
 }
 
 func (t *Transactions) TableName() string {
