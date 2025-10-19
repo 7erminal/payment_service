@@ -183,7 +183,7 @@ func (c *PaymentsController) Post() {
 									Active:          payment.Active,
 									CallbackUrl:     callbackUrl,
 								}
-								var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 400, Payment: &paymentResp, StatusDesc: "Payment successfully initiated!"}
+								var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 200, Payment: &paymentResp, StatusDesc: "Payment successfully initiated!"}
 
 								c.Ctx.Output.SetStatus(200)
 								c.Data["json"] = resp
