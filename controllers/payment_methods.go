@@ -160,8 +160,7 @@ func (c *Payment_methodsController) GetAll() {
 			pmNetworks := []*responses.NetworksResponse{}
 			// Associate networks to payment methods
 			for _, net := range networks {
-				// Here you can implement logic to associate networks based on your criteria
-				// For demonstration, we are associating all networks to each payment method
+				logs.Info("Checking network ", net.NetworkCode, " for payment method ", m.PaymentMethod)
 				if strings.Contains(net.NetworkCode, strings.ToUpper(m.PaymentMethod)) {
 					pmNetworks = append(pmNetworks, net)
 				}
