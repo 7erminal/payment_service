@@ -26,6 +26,10 @@ type Transactions struct {
 	ServicesId          *Services `orm:"rel(fk);column(service_id)"`
 }
 
+func (t *Transactions) TableName() string {
+	return "bil_transactions"
+}
+
 func init() {
 	orm.RegisterModel(new(Transactions))
 }
