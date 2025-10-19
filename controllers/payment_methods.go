@@ -151,6 +151,9 @@ func (c *Payment_methodsController) GetAll() {
 				networks = append(networks, networkObj)
 			}
 		}
+		logs.Info("Payment methods fetched successfully")
+		logs.Info("Using networks: ", networks)
+
 		for _, urs := range l {
 			m := urs.(models.Payment_methods)
 
@@ -159,7 +162,7 @@ func (c *Payment_methodsController) GetAll() {
 			for _, net := range networks {
 				// Here you can implement logic to associate networks based on your criteria
 				// For demonstration, we are associating all networks to each payment method
-				if strings.Contains(net.NetworkCode, strings.ToLower(m.PaymentMethod)) {
+				if strings.Contains(net.NetworkCode, strings.ToUpper(m.PaymentMethod)) {
 					pmNetworks = append(pmNetworks, net)
 				}
 			}
