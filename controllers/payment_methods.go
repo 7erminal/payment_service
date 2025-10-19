@@ -134,6 +134,8 @@ func (c *Payment_methodsController) GetAll() {
 			// resp := responses.PaymentMethodsResponseDTO{StatusCode: 608, PaymentMethods: nil, StatusDesc: "Error fetching payment methods"}
 			// c.Data["json"] = resp
 		} else {
+			logs.Info("Networks fetched successfully")
+			logs.Info(n)
 			for _, urs := range n {
 				m := urs.(models.Networks)
 
