@@ -13,6 +13,7 @@ import (
 type Services struct {
 	ServiceId          int64     `orm:"auto"`
 	ServiceName        string    `orm:"size(100)"`
+	ServiceCode        string    `orm:"size(100)"`
 	ServiceDescription string    `orm:"size(500)"`
 	DateCreated        time.Time `orm:"type(datetime)"`
 	DateModified       time.Time `orm:"type(datetime)"`
@@ -43,6 +44,15 @@ func GetServicesById(id int64) (v *Services, err error) {
 	o := orm.NewOrm()
 	v = &Services{ServiceId: id}
 	if err = o.QueryTable(new(Services)).Filter("ServiceId", id).RelatedSel().One(v); err == nil {
+		return v, nil
+	}
+	return nil, err
+}
+
+func GetServicesByCode(code string) (v *Services, err error) {
+	o := orm.NewOrm()
+	v = &Services{ServiceCode: code}
+	if err = o.QueryTable(new(Services)).Filter("ServiceCode", code).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err

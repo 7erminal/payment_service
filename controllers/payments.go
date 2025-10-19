@@ -47,129 +47,173 @@ func (c *PaymentsController) Post() {
 	logs.Info("Request received ", v)
 	logs.Info("Transaction ID is ", v.TransactionId)
 
-	if paymentMethod, err := models.GetPayment_methodsByName(v.PaymentMethod); err == nil {
-		var sender models.Customers
-		if s, err := models.GetCustomerById(v.Sender); err == nil {
-			sender = *s
-		} else {
-			logs.Error("Error getting customer ", err.Error())
-		}
+	reqText, err := json.Marshal(v)
+	if err != nil {
+		c.Data["json"] = "Invalid request format"
+		c.ServeJSON()
+		return
+	}
 
-		var receiver models.Users
-		if u, err := models.GetUsersById(v.Reciever); err == nil {
-			receiver = *u
-		} else {
-			logs.Error("Error getting user ", err.Error())
-		}
-		if status, err := models.GetStatusByName("PENDING"); err == nil {
-			logs.Info("Payment reference number is " + v.ReferenceNumber)
-			var transaction *models.Transactions
-			if v.TransactionId != "" {
-				if tid, err := strconv.ParseInt(v.TransactionId, 10, 64); err == nil {
-					transaction = &models.Transactions{TransactionId: tid}
-				} else {
-					logs.Error("Invalid TransactionId: ", err)
-				}
+	statusCode := "PENDING"
+
+	serviceCode := "PAYMENT"
+	if service, err := models.GetServicesByCode(serviceCode); err == nil {
+		logs.Info("Service fetched successfully")
+		status, err := models.GetStatus_codesByCode(statusCode)
+		if err == nil {
+			var sender models.Customers
+			if s, err := models.GetCustomerById(v.Sender); err == nil {
+				sender = *s
+			} else {
+				logs.Error("Error getting customer ", err.Error())
 			}
-			var payment models.Payments = models.Payments{
-				Transaction:     transaction,
-				PaymentProof:    v.PaymentProofUrl,
-				ReferenceNumber: v.ReferenceNumber,
-				InitiatedBy:     v.InitiatedBy,
-				Sender:          &sender,
-				Reciever:        &receiver,
-				Amount:          float64(v.Amount),
-				PaymentMethod:   paymentMethod,
-				Status:          status,
-				PaymentAccount:  "",
+
+			req := models.Request{
+				CustId:          &sender,
+				Request:         string(reqText),
+				RequestType:     service.ServiceName,
+				RequestStatus:   status.StatusDescription,
+				RequestAmount:   float64(v.Amount),
+				RequestResponse: "",
+				RequestDate:     time.Now(),
 				DateCreated:     time.Now(),
 				DateModified:    time.Now(),
-				DateProcessed:   time.Now(),
-				CreatedBy:       v.InitiatedBy,
-				ModifiedBy:      v.InitiatedBy,
-				Active:          1,
-				Service:         v.Service,
-				SenderAccount:   v.SenderAccount,
-				ReceiverAccount: v.ReceiverAccount,
 			}
-			if _, err := models.AddPayments(&payment); err == nil {
-				// Send to Account service to debit and credit
-				logs.Info("Payment added successfully")
-				logs.Info(payment)
+			if _, err := models.AddRequest(&req); err == nil {
+				if paymentMethod, err := models.GetPayment_methodsByName(v.PaymentMethod); err == nil {
 
-				var payment_history models.Payment_history = models.Payment_history{
-					Payment:      &payment,
-					Status:       payment.Status.StatusId,
-					Service:      payment.Service,
-					Narration:    "Payment initiated",
-					Reference:    v.Network,
-					DateCreated:  time.Now(),
-					DateModified: time.Now(),
-					CreatedBy:    v.InitiatedBy,
-					ModifiedBy:   v.InitiatedBy,
-					Active:       1,
-				}
-				if _, err := models.AddPayment_history(&payment_history); err == nil {
-					logs.Info("Payment history added successfully")
-					logs.Info("Checking if call back is required...")
-					callbackUrl := ""
-					if v.CallThirdParty {
-						logs.Info("Callback required")
-						operatorCaps := strings.ToUpper(v.Operator)
-						serviceCaps := strings.ToUpper("PAYMENT")
-						operator, err := models.GetOperatorByName(operatorCaps)
-						if err == nil {
-							appProperty, err := models.GetApplication_propertyByCode(strings.ToUpper(operator.OperatorName) + "_" + serviceCaps + "_CALLBACK_URL")
-
-							if err == nil && appProperty != nil {
-								callbackUrl = appProperty.PropertyValue
-								logs.Info("Callback URL found: " + callbackUrl)
+					var receiver models.Users
+					if u, err := models.GetUsersById(v.Reciever); err == nil {
+						receiver = *u
+					} else {
+						logs.Error("Error getting user ", err.Error())
+					}
+					if status, err := models.GetStatusByName("PENDING"); err == nil {
+						logs.Info("Payment reference number is " + v.ReferenceNumber)
+						var transaction *models.Transactions
+						if v.TransactionId != "" {
+							if tid, err := strconv.ParseInt(v.TransactionId, 10, 64); err == nil {
+								transaction = &models.Transactions{TransactionId: tid}
 							} else {
-								logs.Error("Callback URL not found for operator "+operator.OperatorName+" and service "+serviceCaps+": ", err)
+								logs.Error("Invalid TransactionId: ", err)
+							}
+						}
+
+						var payment models.Payments = models.Payments{
+							Transaction:     transaction,
+							PaymentProof:    v.PaymentProofUrl,
+							ReferenceNumber: v.ReferenceNumber,
+							Request:         &req,
+							InitiatedBy:     v.InitiatedBy,
+							Sender:          &sender,
+							Reciever:        &receiver,
+							Amount:          float64(v.Amount),
+							PaymentMethod:   paymentMethod,
+							Status:          status,
+							PaymentAccount:  "",
+							DateCreated:     time.Now(),
+							DateModified:    time.Now(),
+							DateProcessed:   time.Now(),
+							CreatedBy:       v.InitiatedBy,
+							ModifiedBy:      v.InitiatedBy,
+							Active:          1,
+							Service:         v.Service,
+							SenderAccount:   v.SenderAccount,
+							ReceiverAccount: v.ReceiverAccount,
+						}
+						if _, err := models.AddPayments(&payment); err == nil {
+							// Send to Account service to debit and credit
+							logs.Info("Payment added successfully")
+							logs.Info(payment)
+
+							var payment_history models.Payment_history = models.Payment_history{
+								Payment:      &payment,
+								Status:       payment.Status.StatusId,
+								Service:      payment.Service,
+								Narration:    "Payment initiated",
+								Reference:    v.Network,
+								DateCreated:  time.Now(),
+								DateModified: time.Now(),
+								CreatedBy:    v.InitiatedBy,
+								ModifiedBy:   v.InitiatedBy,
+								Active:       1,
+							}
+							if _, err := models.AddPayment_history(&payment_history); err == nil {
+								logs.Info("Payment history added successfully")
+								logs.Info("Checking if call back is required...")
+								callbackUrl := ""
+								if v.CallThirdParty {
+									logs.Info("Callback required")
+									operatorCaps := strings.ToUpper(v.Operator)
+									serviceCaps := strings.ToUpper("PAYMENT")
+									operator, err := models.GetOperatorByName(operatorCaps)
+									if err == nil {
+										appProperty, err := models.GetApplication_propertyByCode(strings.ToUpper(operator.OperatorName) + "_" + serviceCaps + "_CALLBACK_URL")
+
+										if err == nil && appProperty != nil {
+											callbackUrl = appProperty.PropertyValue
+											logs.Info("Callback URL found: " + callbackUrl)
+										} else {
+											logs.Error("Callback URL not found for operator "+operator.OperatorName+" and service "+serviceCaps+": ", err)
+										}
+									} else {
+										logs.Error("Operator not found for callback: ", err)
+									}
+								}
+								paymentResp := responses.PaymentResponse{
+									PaymentId:       strconv.FormatInt(payment.PaymentId, 10),
+									Sender:          payment.Sender.FullName,
+									Reciever:        payment.Reciever.FullName,
+									Amount:          payment.Amount,
+									Commission:      payment.Commission,
+									Charge:          payment.Charge,
+									OtherCharge:     payment.OtherCharge,
+									PaymentAmount:   payment.PaymentAmount,
+									PaymentMethod:   payment.PaymentMethod,
+									PaymentProof:    payment.PaymentProof,
+									Status:          payment.Status,
+									Service:         payment.Service,
+									SenderAccount:   payment.SenderAccount,
+									ReceiverAccount: payment.ReceiverAccount,
+									ReferenceNumber: payment.ReferenceNumber,
+									DateCreated:     payment.DateCreated,
+									DateModified:    payment.DateModified,
+									ProcessedDate:   payment.DateProcessed,
+									Active:          payment.Active,
+									CallbackUrl:     callbackUrl,
+								}
+								var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 400, Payment: &paymentResp, StatusDesc: "Payment successfully initiated!"}
+
+								c.Ctx.Output.SetStatus(200)
+								c.Data["json"] = resp
+							} else {
+								logs.Error("Unable to add payment history ", err.Error())
+								var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+								c.Data["json"] = resp
 							}
 						} else {
-							logs.Error("Operator not found for callback: ", err)
+							logs.Error("Unable to add payment ", err.Error())
+							var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+							c.Data["json"] = resp
 						}
 					}
-					paymentResp := responses.PaymentResponse{
-						PaymentId:       strconv.FormatInt(payment.PaymentId, 10),
-						Sender:          payment.Sender.FullName,
-						Reciever:        payment.Reciever.FullName,
-						Amount:          payment.Amount,
-						Commission:      payment.Commission,
-						Charge:          payment.Charge,
-						OtherCharge:     payment.OtherCharge,
-						PaymentAmount:   payment.PaymentAmount,
-						PaymentMethod:   payment.PaymentMethod,
-						PaymentProof:    payment.PaymentProof,
-						Status:          payment.Status,
-						Service:         payment.Service,
-						SenderAccount:   payment.SenderAccount,
-						ReceiverAccount: payment.ReceiverAccount,
-						ReferenceNumber: payment.ReferenceNumber,
-						DateCreated:     payment.DateCreated,
-						DateModified:    payment.DateModified,
-						ProcessedDate:   payment.DateProcessed,
-						Active:          payment.Active,
-						CallbackUrl:     callbackUrl,
-					}
-					var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 400, Payment: &paymentResp, StatusDesc: "Payment successfully initiated!"}
-
-					c.Ctx.Output.SetStatus(200)
-					c.Data["json"] = resp
 				} else {
-					logs.Error("Unable to add payment history ", err.Error())
+					logs.Error("Unable to get payment method ", err.Error())
 					var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
 					c.Data["json"] = resp
 				}
 			} else {
-				logs.Error("Unable to add payment ", err.Error())
+				logs.Error("Unable to add request ", err.Error())
 				var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
 				c.Data["json"] = resp
 			}
+		} else {
+			logs.Error("Unable to get status ", err.Error())
+			var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
+			c.Data["json"] = resp
 		}
 	} else {
-		logs.Error("Unable to get payment method ", err.Error())
+		logs.Error("Unable to get service ", err.Error())
 		var resp responses.PaymentResponseDTO = responses.PaymentResponseDTO{StatusCode: 806, Payment: nil, StatusDesc: "Order error! " + err.Error()}
 		c.Data["json"] = resp
 	}
