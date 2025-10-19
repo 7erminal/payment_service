@@ -63,8 +63,16 @@ func (c *PaymentsController) Post() {
 		}
 		if status, err := models.GetStatusByName("PENDING"); err == nil {
 			logs.Info("Payment reference number is " + v.ReferenceNumber)
+			var transaction *models.Transactions
+			if v.TransactionId != "" {
+				if tid, err := strconv.ParseInt(v.TransactionId, 10, 64); err == nil {
+					transaction = &models.Transactions{TransactionId: tid}
+				} else {
+					logs.Error("Invalid TransactionId: ", err)
+				}
+			}
 			var payment models.Payments = models.Payments{
-				Transaction:     nil,
+				Transaction:     transaction,
 				PaymentProof:    v.PaymentProofUrl,
 				ReferenceNumber: v.ReferenceNumber,
 				InitiatedBy:     v.InitiatedBy,
