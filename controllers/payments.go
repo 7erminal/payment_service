@@ -121,6 +121,8 @@ func (c *PaymentsController) Post() {
 							ModifiedBy:      v.InitiatedBy,
 							Active:          1,
 							Service:         v.Service,
+							ServiceNetwork:  v.ServiceNetwork,
+							ServicePackage:  v.ServicePackage,
 							SenderAccount:   v.SenderAccount,
 							ReceiverAccount: v.ReceiverAccount,
 						}

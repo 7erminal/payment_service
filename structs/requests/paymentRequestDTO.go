@@ -30,6 +30,8 @@ type PaymentRequest2DTO struct {
 	CallThirdParty  bool
 	Operator        string
 	Network         string
+	ServiceNetwork  string
+	ServicePackage  string
 }
 
 type MomoPaymentRequestDTO struct {

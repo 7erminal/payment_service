@@ -32,6 +32,8 @@ type Payments struct {
 	PaymentProof    string           `orm:"null"`
 	Status          *Status          `orm:"rel(fk);null;column(status)"`
 	PaymentAccount  string
+	ServiceNetwork  string `orm:"size(128);null"`
+	ServicePackage  string `orm:"size(128);null"`
 	ReferenceNumber string
 	DateCreated     time.Time `orm:"type(datetime)"`
 	DateModified    time.Time `orm:"type(datetime)"`
