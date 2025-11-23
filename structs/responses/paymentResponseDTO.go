@@ -35,6 +35,8 @@ type PaymentResponse struct {
 	SenderAccount   string
 	ReceiverAccount string
 	ReferenceNumber string
+	ServiceNetwork  string
+	ServicePackage  string
 	DateCreated     time.Time `orm:"type(datetime)"`
 	DateModified    time.Time `orm:"type(datetime)"`
 	ProcessedDate   time.Time `orm:"type(datetime);null"`

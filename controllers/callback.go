@@ -208,6 +208,8 @@ func (c *CallbackController) Post() {
 					SenderAccount:   resp.SenderAccount,
 					ReceiverAccount: resp.ReceiverAccount,
 					ReferenceNumber: resp.ReferenceNumber,
+					ServiceNetwork:  resp.ServiceNetwork,
+					ServicePackage:  resp.ServicePackage,
 					DateCreated:     resp.DateCreated,
 					DateModified:    resp.DateModified,
 					ProcessedDate:   resp.DateProcessed,
