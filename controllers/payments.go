@@ -282,6 +282,7 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 					}
 					if _, err := models.AddPayment_history(&payment_history); err == nil {
 						momoRequest := requests.MomoPaymentApiRequestDTO{
+							Payment:            *payment,
 							CustomerName:       customerName,
 							CustomerMsisdn:     v.CustomerMsisdn,
 							CustomerEmail:      v.CustomerEmail,
