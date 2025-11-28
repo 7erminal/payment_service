@@ -132,12 +132,12 @@ func (c *CallbackController) Post() {
 				if err == nil {
 					for _, v := range paymentHist {
 						logs.Info("Payment history found: ", v)
-						paymentHistObj := v.(*models.Payment_history)
+						paymentHistObj := v.(models.Payment_history)
 
 						paymentHistObj.Status = status.StatusId
 						paymentHistObj.DateModified = time.Now()
 
-						if err := models.UpdatePayment_historyById(paymentHistObj); err != nil {
+						if err := models.UpdatePayment_historyById(&paymentHistObj); err != nil {
 							logs.Error("Failed to update payment history: %v", err)
 						} else {
 							logs.Info("Payment history updated successfully for Payment ID: ", resp.PaymentId)
