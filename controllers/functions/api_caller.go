@@ -144,7 +144,7 @@ func HubtelSendMoneyViaMobileMoney(c *beego.Controller, req requests.HubtelMomoP
 
 func HubtelNameInquiry(c *beego.Controller, mobileNumber string, channel string) (responses.HubtelNameInquiryApiResponseDTO, error) {
 	host, _ := beego.AppConfig.String("hubtelNameInquiryBaseUrl")
-	prepaidId, _ := beego.AppConfig.String("hubtelPrepaidDepositID")
+	salesId, _ := beego.AppConfig.String("hubtelSalesID")
 	authorizationKey, _ := beego.AppConfig.String("authorizationKey")
 
 	logs.Info("Sending phone number ", mobileNumber)
@@ -153,7 +153,7 @@ func HubtelNameInquiry(c *beego.Controller, mobileNumber string, channel string)
 
 	request := api.NewRequest(
 		host,
-		"/"+prepaidId+"/mobilemoney/verify?channel="+channel+"&customerMsisdn="+mobileNumber,
+		"/"+salesId+"/mobilemoney/verify?channel="+channel+"&customerMsisdn="+mobileNumber,
 		api.POST)
 	request.HeaderField["Authorization"] = "Basic " + authorizationKey
 
