@@ -359,7 +359,7 @@ func (c *PaymentsController) NameInquiry() {
 	if network, err := models.GetNetworksByCode(v.Channel); err == nil {
 		hubtelRequest := requests.HubtelNameInquiryRequestDTO{
 			CustomerMsisdn: v.CustomerMsisdn,
-			Channel:        network.NetworkCode,
+			Channel:        network.NetworkReferenceId,
 		}
 
 		if hubtelResp, err := functions.NameInquiryViaMobileMoney(&c.Controller, hubtelRequest); err == nil {
