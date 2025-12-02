@@ -238,7 +238,7 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 	json.Unmarshal(c.Ctx.Input.RequestBody, &v)
 	responseCode := 401
 	responseMessage := "Error processing request"
-	resp := responses.RequestMoneyResponseDTO{
+	resp := responses.SendMoneyResponseDTO{
 		StatusCode: responseCode,
 		Result:     nil,
 		StatusDesc: responseMessage,
@@ -249,7 +249,7 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 	id, perr := strconv.ParseInt(paymentId, 10, 64)
 	if perr != nil {
 		logs.Error("Invalid payment ID: ", perr)
-		resp = responses.RequestMoneyResponseDTO{StatusCode: 400, Result: nil, StatusDesc: "Invalid payment ID: " + perr.Error()}
+		resp = responses.SendMoneyResponseDTO{StatusCode: 400, Result: nil, StatusDesc: "Invalid payment ID: " + perr.Error()}
 		c.Data["json"] = resp
 		c.ServeJSON()
 		return
@@ -272,7 +272,7 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 						Payment:      payment,
 						Status:       status.StatusId,
 						Service:      "MOBILEMONEY",
-						Narration:    "Requesting money via Mobile Money for Payment ID " + paymentId,
+						Narration:    "Sending money via Mobile Money for Payment ID " + paymentId,
 						Reference:    v.Channel,
 						DateCreated:  time.Now(),
 						DateModified: time.Now(),
@@ -293,7 +293,7 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 							ClientReference:    v.ClientReference,
 						}
 
-						payment := responses.RequestMoneyDataResponse{
+						payment := responses.SendMoneyDataResponse{
 							PaymentId:          v.PaymentId,
 							Amount:             payment.Amount,
 							SenderAccount:      payment.SenderAccount,
@@ -305,8 +305,8 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 							PaymentDate:        payment.DateCreated.Format("2006-01-02 15:04:05"),
 						}
 
-						if hubtelResp, err := functions.PaymentRequestViaMobileMoney(&c.Controller, momoRequest); err == nil {
-							logs.Info("Hubtel payment request response: ", hubtelResp)
+						if hubtelResp, err := functions.PaymentSendViaMobileMoney(&c.Controller, momoRequest); err == nil {
+							logs.Info("Hubtel send payment request response: ", hubtelResp)
 							if hubtelResp.Success {
 								responseCode = 200
 								responseMessage = "Payment request successful"
@@ -314,31 +314,30 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 								payment.Description = hubtelResp.Result.Description
 								payment.AmountAfterCharges = hubtelResp.Result.AmountAfterCharges
 								payment.AmountCharged = hubtelResp.Result.AmountCharged
-								payment.PaymentDate = hubtelResp.Result.PaymentDate
-								resp = responses.RequestMoneyResponseDTO{StatusCode: responseCode, Result: &payment, StatusDesc: responseMessage}
+								resp = responses.SendMoneyResponseDTO{StatusCode: responseCode, Result: &payment, StatusDesc: responseMessage}
 							} else {
 								responseMessage = "Payment request failed! " + hubtelResp.StatusDesc
-								resp = responses.RequestMoneyResponseDTO{StatusCode: responseCode, Result: &payment, StatusDesc: responseMessage}
+								resp = responses.SendMoneyResponseDTO{StatusCode: responseCode, Result: &payment, StatusDesc: responseMessage}
 							}
 						}
 
 					} else {
 						logs.Error("Failed to create payment record: %v", err)
-						resp = responses.RequestMoneyResponseDTO{StatusCode: 807, Result: nil, StatusDesc: "Order error! " + err.Error()}
+						resp = responses.SendMoneyResponseDTO{StatusCode: 807, Result: nil, StatusDesc: "Order error! " + err.Error()}
 					}
 				} else {
 					logs.Error("Unable to get status PENDING: %v", err)
-					resp = responses.RequestMoneyResponseDTO{StatusCode: 808, Result: nil, StatusDesc: "Order error! " + err.Error()}
+					resp = responses.SendMoneyResponseDTO{StatusCode: 808, Result: nil, StatusDesc: "Order error! " + err.Error()}
 				}
 			}
 
 		} else {
 			logs.Error("Unable to get network ", err.Error())
-			resp = responses.RequestMoneyResponseDTO{StatusCode: 806, Result: nil, StatusDesc: "Order error! " + err.Error()}
+			resp = responses.SendMoneyResponseDTO{StatusCode: 806, Result: nil, StatusDesc: "Order error! " + err.Error()}
 		}
 	} else {
 		logs.Error("Unable to find payment ", err.Error())
-		resp = responses.RequestMoneyResponseDTO{StatusCode: 805, Result: nil, StatusDesc: "Order error! " + err.Error()}
+		resp = responses.SendMoneyResponseDTO{StatusCode: 805, Result: nil, StatusDesc: "Order error! " + err.Error()}
 	}
 	c.Data["json"] = resp
 	c.ServeJSON()

@@ -69,6 +69,65 @@ func PaymentRequestViaMobileMoney(c *beego.Controller, req requests.MomoPaymentA
 	return resp, nil
 }
 
+func PaymentSendViaMobileMoney(c *beego.Controller, req requests.MomoPaymentApiRequestDTO) (responses.HubtelSendPaymentResponseDTO, error) {
+	//do something
+
+	momoRequest := requests.HubtelMomoPaymentRequestDTO{
+		CustomerName:       req.CustomerName,
+		CustomerMsisdn:     req.CustomerMsisdn,
+		CustomerEmail:      req.CustomerEmail,
+		Channel:            req.Channel,
+		Amount:             float32(req.Amount),
+		PrimaryCallbackUrl: req.PrimaryCallbackUrl,
+		Description:        "Payment for " + req.CustomerName,
+		ClientReference:    req.ClientReference,
+		Network:            req.Channel,
+	}
+
+	responseCode := false
+	responseMessage := "Error processing request"
+	result := responses.HubtelSendPaymentApiResponseData{}
+	resp := responses.HubtelSendPaymentResponseDTO{
+		Success:    responseCode,
+		StatusDesc: responseMessage,
+		Result:     &result,
+	}
+
+	requestPaymentResp, err := HubtelSendMoneyViaMobileMoney(c, momoRequest)
+
+	if err != nil {
+		logs.Error("Error making payment request via mobile money: ", err)
+		return responses.HubtelSendPaymentResponseDTO{
+			Success:    false,
+			StatusDesc: "Error processing request",
+			Result:     nil,
+		}, err
+	}
+
+	if requestPaymentResp.ResponseCode == "0001" {
+		if status, err := models.GetStatusByName("PENDING"); err == nil {
+			req.Payment.Status = status
+
+			if err := models.UpdatePaymentsById(&req.Payment); err == nil {
+				logs.Info("Payment status updated to PENDING for Payment ID: ", req.Payment.PaymentId)
+				responseCode = true
+				responseMessage = "Payment request initiated successfully"
+			} else {
+				logs.Error("Error updating payment status to PENDING for Payment ID: ", req.Payment.PaymentId, " Error: ", err)
+				responseCode = false
+				responseMessage = "Error updating payment status"
+			}
+		}
+	}
+
+	resp = responses.HubtelSendPaymentResponseDTO{
+		Success:    responseCode,
+		StatusDesc: responseMessage,
+		Result:     &result,
+	}
+	return resp, nil
+}
+
 func NameInquiryViaMobileMoney(c *beego.Controller, req requests.HubtelNameInquiryRequestDTO) (responses.HubtelNameInquiryResponseDTO, error) {
 	//do something
 

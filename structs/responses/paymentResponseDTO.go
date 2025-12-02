@@ -71,9 +71,28 @@ type RequestMoneyDataResponse struct {
 	PaymentDate        string
 }
 
+type SendMoneyDataResponse struct {
+	PaymentId          string
+	Description        string
+	Amount             float64
+	Charges            float64
+	SenderAccount      string
+	ReceiverAccount    string
+	AmountAfterCharges float64
+	AmountCharged      float64
+	ReferenceNumber    string
+	PaymentDate        string
+}
+
 type RequestMoneyResponseDTO struct {
 	StatusCode int
 	Result     *RequestMoneyDataResponse
+	StatusDesc string
+}
+
+type SendMoneyResponseDTO struct {
+	StatusCode int
+	Result     *SendMoneyDataResponse
 	StatusDesc string
 }
 
@@ -97,10 +116,33 @@ type HubtelPaymentRequestApiResponseData struct {
 	PaymentDate           string
 }
 
+type HubtelSendPaymentApiResponseData struct {
+	TransactionId      string
+	Description        string
+	Amount             float64
+	Charges            float64
+	AmountAfterCharges float64
+	AmountCharged      float64
+	ClientReference    string
+	DeliveryFee        float64
+}
+
 type HubtelPaymentRequestApiResponseDTO struct {
 	ResponseCode string
 	Data         HubtelPaymentRequestApiResponseData
 	Message      string
+}
+
+type HubtelSendPaymentApiResponseDTO struct {
+	ResponseCode string
+	Data         HubtelSendPaymentApiResponseData
+	Message      string
+}
+
+type HubtelSendPaymentResponseDTO struct {
+	Success    bool
+	Result     *HubtelSendPaymentApiResponseData
+	StatusDesc string
 }
 
 type HubtelPaymentRequestResponseDTO struct {

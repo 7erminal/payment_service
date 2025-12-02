@@ -77,7 +77,7 @@ func HubtelRequestViaMobileMoney(c *beego.Controller, req requests.HubtelMomoPay
 	return data, nil
 }
 
-func HubtelSendMoneyViaMobileMoney(c *beego.Controller, req requests.HubtelMomoPaymentRequestDTO) (responses.HubtelPaymentRequestApiResponseDTO, error) {
+func HubtelSendMoneyViaMobileMoney(c *beego.Controller, req requests.HubtelMomoPaymentRequestDTO) (responses.HubtelSendPaymentApiResponseDTO, error) {
 	host, _ := beego.AppConfig.String("hubtelBaseUrl")
 	prepaidId, _ := beego.AppConfig.String("hubtelPrepaidDepositID")
 	authorizationKey, _ := beego.AppConfig.String("authorizationKey")
@@ -99,11 +99,11 @@ func HubtelSendMoneyViaMobileMoney(c *beego.Controller, req requests.HubtelMomoP
 		"/"+prepaidId+"/send/mobilemoney",
 		api.POST)
 	request.HeaderField["Authorization"] = "Basic " + authorizationKey
-	request.InterfaceParams["RecipientName"] = req.CustomerName
+	request.InterfaceParams["CustomerName"] = req.CustomerName
 	request.InterfaceParams["Amount"] = req.Amount
 	request.InterfaceParams["PrimaryCallbackUrl"] = req.PrimaryCallbackUrl
 	request.InterfaceParams["ClientReference"] = req.ClientReference
-	request.InterfaceParams["RecipientMsisdn"] = req.CustomerMsisdn
+	request.InterfaceParams["CustomerMsisdn"] = req.CustomerMsisdn
 	request.InterfaceParams["CustomerEmail"] = req.CustomerEmail
 	request.InterfaceParams["Channel"] = req.Channel
 	request.InterfaceParams["Description"] = req.Description
@@ -132,7 +132,7 @@ func HubtelSendMoneyViaMobileMoney(c *beego.Controller, req requests.HubtelMomoP
 	}
 	// data := map[string]interface{}{}
 	// var dataOri responses.UserOriResponseDTO
-	var data responses.HubtelPaymentRequestApiResponseDTO
+	var data responses.HubtelSendPaymentApiResponseDTO
 	json.Unmarshal(read, &data)
 	c.Data["json"] = data
 
