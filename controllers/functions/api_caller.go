@@ -99,11 +99,11 @@ func HubtelSendMoneyViaMobileMoney(c *beego.Controller, req requests.HubtelMomoP
 		"/"+prepaidId+"/send/mobilemoney",
 		api.POST)
 	request.HeaderField["Authorization"] = "Basic " + authorizationKey
-	request.InterfaceParams["CustomerName"] = req.CustomerName
+	request.InterfaceParams["RecipientName"] = req.CustomerName
 	request.InterfaceParams["Amount"] = req.Amount
 	request.InterfaceParams["PrimaryCallbackUrl"] = req.PrimaryCallbackUrl
 	request.InterfaceParams["ClientReference"] = req.ClientReference
-	request.InterfaceParams["CustomerMsisdn"] = req.CustomerMsisdn
+	request.InterfaceParams["RecipientMsisdn"] = req.CustomerMsisdn
 	request.InterfaceParams["CustomerEmail"] = req.CustomerEmail
 	request.InterfaceParams["Channel"] = req.Channel
 	request.InterfaceParams["Description"] = req.Description
