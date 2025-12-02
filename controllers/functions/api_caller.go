@@ -154,13 +154,13 @@ func HubtelNameInquiry(c *beego.Controller, mobileNumber string, channel string)
 	request := api.NewRequest(
 		host,
 		"/"+salesId+"/mobilemoney/verify?channel="+channel+"&customerMsisdn="+mobileNumber,
-		api.POST)
+		api.GET)
 	request.HeaderField["Authorization"] = "Basic " + authorizationKey
 
 	// request.Params = {"UserId": strconv.Itoa(int(userid))}
 	client := api.Client{
 		Request: request,
-		Type_:   "body",
+		Type_:   "params",
 	}
 	res, err := client.SendRequest()
 	if err != nil {
