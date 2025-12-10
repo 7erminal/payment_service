@@ -194,6 +194,7 @@ func (c *CallbackController) Post() {
 				responseCode = true
 				responseMessage = "Transaction updated successfully"
 				payment := responses.PaymentResponse{
+					TransactionId:   strconv.FormatInt(resp.Transaction.TransactionId, 10),
 					Sender:          resp.Sender.FullName,
 					Reciever:        resp.Reciever.FullName,
 					Amount:          resp.Amount,

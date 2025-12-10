@@ -21,6 +21,7 @@ type PaymentHistoryResponse struct {
 
 type PaymentResponse struct {
 	PaymentId       string
+	TransactionId   string
 	Sender          string
 	Reciever        string
 	Amount          float64
