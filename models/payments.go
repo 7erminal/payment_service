@@ -14,14 +14,14 @@ import (
 type Payments struct {
 	PaymentId       int64 `orm:"auto"`
 	InitiatedBy     int64
-	Transaction     *Transactions `orm:"rel(fk);null"`
-	Request         *Request      `orm:"rel(fk);null;column(request_id)"`
-	Sender          *Customers    `orm:"rel(fk);null;column(sender)"`
-	Service         string        `orm:"size(128)"`
-	Reciever        *Users        `orm:"rel(fk);null;column(reciever)"`
-	SenderAccount   string        `orm:"size(128);null"`
-	ReceiverAccount string        `orm:"size(128);null"`
-	PaymentCurrency string        `orm:"size(10)"`
+	TransactionId   string
+	Request         *Request   `orm:"rel(fk);null;column(request_id)"`
+	Sender          *Customers `orm:"rel(fk);null;column(sender)"`
+	Service         string     `orm:"size(128)"`
+	Reciever        *Users     `orm:"rel(fk);null;column(reciever)"`
+	SenderAccount   string     `orm:"size(128);null"`
+	ReceiverAccount string     `orm:"size(128);null"`
+	PaymentCurrency string     `orm:"size(10)"`
 	Amount          float64
 	Commission      float64
 	Charge          float64
@@ -107,6 +107,17 @@ func GetPaymentsByReference(reference string) (v *Payments, err error) {
 	o := orm.NewOrm()
 	v = &Payments{}
 	if err = o.QueryTable(new(Payments)).Filter("ReferenceNumber", reference).RelatedSel().One(v); err == nil {
+		return v, nil
+	}
+	return nil, err
+}
+
+// GetPaymentsByTransactionRef retrieves Payments by Id. Returns error if
+// Id doesn't exist
+func GetPaymentsByTxnReference(reference string) (v *Payments, err error) {
+	o := orm.NewOrm()
+	v = &Payments{}
+	if err = o.QueryTable(new(Payments)).Filter("TransactionRef", reference).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err

@@ -92,17 +92,17 @@ func (c *PaymentsController) Post() {
 					}
 					if status, err := models.GetStatusByName("PENDING"); err == nil {
 						logs.Info("Payment reference number is " + v.ReferenceNumber)
-						var transaction *models.Transactions
-						if v.TransactionId != "" {
-							if tid, err := strconv.ParseInt(v.TransactionId, 10, 64); err == nil {
-								transaction = &models.Transactions{TransactionId: tid}
-							} else {
-								logs.Error("Invalid TransactionId: ", err)
-							}
-						}
+						// var transaction *models.Transactions
+						// if v.TransactionId != "" {
+						// 	if tid, err := strconv.ParseInt(v.TransactionId, 10, 64); err == nil {
+						// 		transaction = &models.Transactions{TransactionId: tid}
+						// 	} else {
+						// 		logs.Error("Invalid TransactionId: ", err)
+						// 	}
+						// }
 
 						var payment models.Payments = models.Payments{
-							Transaction:     transaction,
+							TransactionId:   v.TransactionId,
 							PaymentProof:    v.PaymentProofUrl,
 							ReferenceNumber: v.ReferenceNumber,
 							Request:         &req,
@@ -458,6 +458,110 @@ func (c *PaymentsController) GetOne() {
 	} else {
 		c.Data["json"] = v
 	}
+	c.ServeJSON()
+}
+
+// GetOneWithTransactionReference ...
+// @Title Get One with transaction ref
+// @Description get Payments by transaction ref
+// @Param	ref		path 	string	true		"The key for staticblock"
+// @Success 200 {object} models.Payments
+// @Failure 403 :ref is empty
+// @router /txn-ref/:ref [get]
+func (c *PaymentsController) GetOneWithTransactionReference() {
+	idStr := c.Ctx.Input.Param(":ref")
+	// id, _ := strconv.ParseInt(idStr, 0, 64)
+	responseCode := 400
+	responseMessage := "Error fetching payment"
+	payment := responses.PaymentResponse{}
+	logs.Info("Fetching payment with transaction reference: ", idStr)
+	v, err := models.GetPaymentsByTxnReference(idStr)
+	if err != nil {
+		// c.Data["json"] = err.Error()
+		responseCode = 404
+		responseMessage = "Payment not found. " + err.Error()
+	} else {
+		// c.Data["json"] = v
+		var fields []string
+		var sortby []string
+		var order []string
+		var query = make(map[string]string)
+		var limit int64 = 10
+		var offset int64
+
+		querySearch := "Payment__PaymentId:" + strconv.FormatInt(v.PaymentId, 10)
+		// query: k:v,k:v
+		if v := querySearch; v != "" {
+			for _, cond := range strings.Split(v, ",") {
+				kv := strings.SplitN(cond, ":", 2)
+				if len(kv) != 2 {
+					c.Data["json"] = errors.New("Error: invalid query key/value pair")
+					c.ServeJSON()
+					return
+				}
+				k, v := kv[0], kv[1]
+				query[k] = v
+			}
+		}
+		var paymentHistoryResponses []responses.PaymentHistoryResponse
+
+		paymentHist, err := models.GetAllPayment_history(query, fields, sortby, order, offset, limit)
+		if err == nil {
+			for _, v := range paymentHist {
+				logs.Info("Payment history found: ", v)
+				paymentHistObj := v.(models.Payment_history)
+
+				paymentHistoryResponse := responses.PaymentHistoryResponse{
+					PaymentHistoryId: paymentHistObj.PaymentHistoryId,
+					PaymentId:        paymentHistObj.Payment.PaymentId,
+					Status:           paymentHistObj.Payment.Status.Status,
+					Service:          paymentHistObj.Service,
+					Narration:        paymentHistObj.Narration,
+					Reference:        paymentHistObj.Reference,
+					DateCreated:      paymentHistObj.DateCreated,
+					DateModified:     paymentHistObj.DateModified,
+					CreatedBy:        paymentHistObj.CreatedBy,
+					ModifiedBy:       paymentHistObj.ModifiedBy,
+					Active:           paymentHistObj.Active,
+				}
+				paymentHistoryResponses = append(paymentHistoryResponses, paymentHistoryResponse)
+			}
+
+		} else {
+			logs.Error("Failed to retrieve payment history: %v", err)
+		}
+
+		payment = responses.PaymentResponse{
+			TransactionId:   v.TransactionId,
+			Sender:          v.Sender.FullName,
+			Reciever:        v.Reciever.FullName,
+			Amount:          v.Amount,
+			Commission:      v.Commission,
+			Charge:          v.Charge,
+			OtherCharge:     v.OtherCharge,
+			PaymentAmount:   v.PaymentAmount,
+			PaymentMethod:   v.PaymentMethod,
+			PaymentProof:    v.PaymentProof,
+			Status:          v.Status,
+			Service:         v.Service,
+			SenderAccount:   v.SenderAccount,
+			ReceiverAccount: v.ReceiverAccount,
+			ReferenceNumber: v.ReferenceNumber,
+			ServiceNetwork:  v.ServiceNetwork,
+			ServicePackage:  v.ServicePackage,
+			DateCreated:     v.DateCreated,
+			DateModified:    v.DateModified,
+			ProcessedDate:   v.DateProcessed,
+			Active:          v.Active,
+			PaymentHistory:  &paymentHistoryResponses,
+		}
+		c.Ctx.Output.SetStatus(200)
+		responseCode = 200
+		responseMessage = "Payment fetched successfully"
+	}
+
+	resp := responses.PaymentResponseDTO{StatusCode: responseCode, Payment: &payment, StatusDesc: responseMessage}
+	c.Data["json"] = resp
 	c.ServeJSON()
 }
 

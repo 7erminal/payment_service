@@ -45,29 +45,29 @@ func (c *CallbackController) Post() {
 	responseMessage := "Invalid request"
 
 	// Handle successful callback
-	transactionId := ""
-	if v.ClientReference != nil {
-		logs.Info("Transaction ID found in request: ", *v.ClientReference)
-		transactionId = *v.ClientReference
-	}
-	logs.Info("About to get transaction by ID: ", transactionId)
-	id, err := strconv.ParseInt(transactionId, 10, 64)
-	if err != nil {
-		logs.Error("Invalid transaction ID: %v", err)
-		responseCode = false
-		responseMessage = "Invalid transaction ID"
-		resp := responses.CallbackResponse{
-			StatusCode:    responseCode,
-			StatusMessage: responseMessage,
-			Result:        nil,
-		}
-		c.Data["json"] = resp
-		c.Ctx.Output.SetStatus(400)
-		c.ServeJSON()
-		return
-	}
-	if resp, err := models.GetPaymentsById(id); err == nil {
-		logs.Info("Request ID: ", resp.PaymentId)
+	// transactionId := ""
+	// if v.ClientReference != nil {
+	// 	logs.Info("Transaction ID found in request: ", *v.ClientReference)
+	// 	transactionId = *v.ClientReference
+	// }
+	// logs.Info("About to get transaction by ID: ", transactionId)
+	// id, err := strconv.ParseInt(transactionId, 10, 64)
+	// if err != nil {
+	// 	logs.Error("Invalid transaction ID: %v", err)
+	// 	responseCode = false
+	// 	responseMessage = "Invalid transaction ID"
+	// 	resp := responses.CallbackResponse{
+	// 		StatusCode:    responseCode,
+	// 		StatusMessage: responseMessage,
+	// 		Result:        nil,
+	// 	}
+	// 	c.Data["json"] = resp
+	// 	c.Ctx.Output.SetStatus(400)
+	// 	c.ServeJSON()
+	// 	return
+	// }
+	if resp, err := models.GetPaymentsByTxnReference(*v.ClientReference); err == nil {
+		logs.Info("Request ID: ", &resp.PaymentId)
 		if resp != nil {
 			// Update the transaction status
 			statusCode := v.Status
@@ -194,7 +194,7 @@ func (c *CallbackController) Post() {
 				responseCode = true
 				responseMessage = "Transaction updated successfully"
 				payment := responses.PaymentResponse{
-					TransactionId:   strconv.FormatInt(resp.Transaction.TransactionId, 10),
+					TransactionId:   resp.TransactionId,
 					Sender:          resp.Sender.FullName,
 					Reciever:        resp.Reciever.FullName,
 					Amount:          resp.Amount,
@@ -226,7 +226,7 @@ func (c *CallbackController) Post() {
 				c.Ctx.Output.SetStatus(200)
 			}
 		} else {
-			logs.Info("Transaction not found for ID: %s", transactionId)
+			logs.Info("Transaction not found for ID: %s", v.TransactionId)
 			responseCode = false
 			responseMessage = "Transaction not found"
 			resp := responses.CallbackResponse{
