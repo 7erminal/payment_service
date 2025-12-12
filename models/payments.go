@@ -117,7 +117,7 @@ func GetPaymentsByReference(reference string) (v *Payments, err error) {
 func GetPaymentsByTxnReference(reference string) (v *Payments, err error) {
 	o := orm.NewOrm()
 	v = &Payments{}
-	if err = o.QueryTable(new(Payments)).Filter("TransactionRef", reference).RelatedSel().One(v); err == nil {
+	if err = o.QueryTable(new(Payments)).Filter("TransactionId", reference).RelatedSel().One(v); err == nil {
 		return v, nil
 	}
 	return nil, err
