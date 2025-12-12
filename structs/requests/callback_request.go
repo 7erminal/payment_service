@@ -26,6 +26,7 @@ type CallbackRequest struct {
 	Amount                float64
 	Charges               float64
 	AmountAfterCharges    float64
+	Commission            string
 	PaymentDate           *string
 	OrderId               *string
 	Status                string

@@ -41,7 +41,7 @@ func (c *CallbackController) Post() {
 		return
 	}
 
-	responseCode := false
+	responseCode := 606
 	responseMessage := "Invalid request"
 
 	// Handle successful callback
@@ -84,6 +84,7 @@ func (c *CallbackController) Post() {
 				resp.Charge = v.Charges
 				resp.OtherCharge = v.AmountCharged
 				resp.PaymentAmount = v.Amount
+				resp.Commission, _ = strconv.ParseFloat(v.Commission, 64)
 			} else {
 				c.Data["json"] = map[string]string{"error": "Status code not found"}
 				c.Ctx.Output.SetStatus(404)
@@ -91,7 +92,7 @@ func (c *CallbackController) Post() {
 
 			if err := models.UpdatePaymentsById(resp); err != nil {
 				logs.Info("Failed to update transaction status: %v", err)
-				responseCode = false
+				responseCode = 607
 				responseMessage = "Failed to update transaction status"
 				resp := responses.CallbackResponse{
 					StatusCode:    responseCode,
@@ -198,7 +199,7 @@ func (c *CallbackController) Post() {
 				} else {
 					logs.Info("Response: %s", string(respJSON))
 				}
-				responseCode = true
+				responseCode = 200
 				responseMessage = "Transaction updated successfully"
 				payment := responses.PaymentResponse{
 					TransactionId:   resp.TransactionId,
@@ -234,7 +235,7 @@ func (c *CallbackController) Post() {
 			}
 		} else {
 			logs.Info("Transaction not found for ID: %s", v.TransactionId)
-			responseCode = false
+			responseCode = 608
 			responseMessage = "Transaction not found"
 			resp := responses.CallbackResponse{
 				StatusCode:    responseCode,
@@ -248,7 +249,7 @@ func (c *CallbackController) Post() {
 	} else {
 		c.Data["json"] = map[string]string{"error": "Failed to retrieve transaction"}
 		logs.Info("Failed to retrieve transaction: %s", err.Error())
-		responseCode = false
+		responseCode = 609
 		responseMessage = "Failed to retrieve transaction"
 		resp := responses.CallbackResponse{
 			StatusCode:    responseCode,
