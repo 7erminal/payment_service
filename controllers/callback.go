@@ -66,7 +66,7 @@ func (c *CallbackController) Post() {
 	// 	c.ServeJSON()
 	// 	return
 	// }
-	if resp, err := models.GetPaymentsByTxnReference(*v.ClientReference); err == nil {
+	if resp, err := models.GetPaymentsByTxnReference(*v.TransactionId); err == nil {
 		logs.Info("Request ID: ", &resp.PaymentId)
 		if resp != nil {
 			// Update the transaction status
