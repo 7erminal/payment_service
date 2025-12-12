@@ -191,6 +191,13 @@ func (c *CallbackController) Post() {
 					logs.Error("Failed to retrieve request by ID: %v", err)
 				}
 
+				logs.Info("Returniing transaction ID: %s", resp.TransactionId)
+				respJSON, err := json.Marshal(resp)
+				if err != nil {
+					logs.Error("Failed to marshal response: %v", err)
+				} else {
+					logs.Info("Response: %s", string(respJSON))
+				}
 				responseCode = true
 				responseMessage = "Transaction updated successfully"
 				payment := responses.PaymentResponse{
