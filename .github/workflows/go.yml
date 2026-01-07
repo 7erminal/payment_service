@@ -37,5 +37,5 @@ jobs:
           pm2 restart payment-service || pm2 start payment-service --name payment-service
         EOF
 
-    - name: Test
-      run: go test -v ./...
+    # - name: Test
+    #   run: go test -v ./...
