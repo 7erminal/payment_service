@@ -30,11 +30,11 @@ jobs:
       run: |
         sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@184.174.33.200 << 'EOF'
           set -e  # Exit on any error
-          cd /usr/app/mobile-application/payment_service
+          cd /usr/app/maku_foods_payment_service
           git stash
-          git pull origin main  # Use branch explicitly
-          go build -o payment-service
-          pm2 restart payment-service || pm2 start payment-service --name payment-service
+          git pull origin makufoods  # Use branch explicitly
+          go build -o maku-foods-payment-service
+          pm2 restart maku-foods-payment-service || pm2 start maku-foods-payment-service --name maku-foods-payment-service
         EOF
 
     # - name: Test
