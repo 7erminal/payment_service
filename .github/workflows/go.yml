@@ -39,7 +39,7 @@ jobs:
           git pull origin msysmobilizer
           go build -o payment-service
           pm2 restart payment-service || \
-          pm2 start payment-service --name payment-service 
+          pm2 start payment-service --name payment-service
         EOF
 
     # - name: Test
