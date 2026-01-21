@@ -5,15 +5,15 @@ name: Go
 
 on:
   push:
-    branches: [ "makufoods" ]
+    branches: [ "msysmobilizer" ]
   pull_request:
-    branches: [ "makufoods" ]
+    branches: [ "msysmobilizer" ]
 
 jobs:
 
   build:
     runs-on: ubuntu-latest
-    environment: makufoods
+    environment: production
     steps:
     - uses: actions/checkout@v4
 
