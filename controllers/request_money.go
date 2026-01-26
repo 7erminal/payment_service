@@ -52,90 +52,97 @@ func (c *Request_moneyController) RequestMoneyViaMomo() {
 		return
 	}
 
-	if payment, err := models.GetPaymentsById(id); err == nil {
-		logs.Info("Payment found: ", payment)
-		if network, err := models.GetNetworksByCode(v.Channel); err == nil {
-			if v.Operator == "HUBTEL" {
-				customerName := v.CustomerName
-				callbackurl := ""
-				if cbr, err := models.GetApplication_propertyByCode("HUBTEL_PAYMENT_CALLBACK_URL"); err == nil {
-					callbackurl = cbr.PropertyValue
-				} else {
-					logs.Error("Failed to get callback URL: %v", err)
-				}
-
-				if status, err := models.GetStatusByName("PENDING"); err == nil {
-					var payment_history models.Payment_history = models.Payment_history{
-						Payment:      payment,
-						Status:       status.StatusId,
-						Service:      "MOBILEMONEY",
-						Narration:    "Requesting money via Mobile Money for Payment ID " + paymentId,
-						Reference:    v.Channel,
-						DateCreated:  time.Now(),
-						DateModified: time.Now(),
-						CreatedBy:    1,
-						ModifiedBy:   1,
-						Active:       1,
-					}
-					if _, err := models.AddPayment_history(&payment_history); err == nil {
-						momoRequest := requests.MomoPaymentApiRequestDTO{
-							Payment:            *payment,
-							CustomerName:       customerName,
-							CustomerMsisdn:     v.CustomerMsisdn,
-							CustomerEmail:      v.CustomerEmail,
-							Channel:            network.NetworkReferenceId,
-							Amount:             float32(v.Amount),
-							PrimaryCallbackUrl: callbackurl,
-							Description:        "Payment for " + customerName,
-							ClientReference:    v.ClientReference,
-						}
-
-						payment := responses.RequestMoneyDataResponse{
-							PaymentId:          v.PaymentId,
-							Amount:             payment.Amount,
-							SenderAccount:      payment.SenderAccount,
-							ReceiverAccount:    payment.ReceiverAccount,
-							ReferenceNumber:    payment.ReferenceNumber,
-							Description:        payment.Narration,
-							AmountAfterCharges: payment.OtherCharge,
-							AmountCharged:      payment.Charge,
-							PaymentDate:        payment.DateCreated.Format("2006-01-02 15:04:05"),
-						}
-
-						if hubtelResp, err := functions.PaymentRequestViaMobileMoney(&c.Controller, momoRequest); err == nil {
-							logs.Info("Hubtel payment request response: ", hubtelResp)
-							if hubtelResp.Success {
-								responseCode = 200
-								responseMessage = "Payment request successful"
-								payment.ReferenceNumber = hubtelResp.Result.ClientReference
-								payment.Description = hubtelResp.Result.Description
-								payment.AmountAfterCharges = hubtelResp.Result.AmountAfterCharges
-								payment.AmountCharged = hubtelResp.Result.AmountCharged
-								payment.PaymentDate = hubtelResp.Result.PaymentDate
-								resp = responses.RequestMoneyResponseDTO{StatusCode: responseCode, Result: &payment, StatusDesc: responseMessage}
-							} else {
-								responseMessage = "Payment request failed! " + hubtelResp.StatusDesc
-								resp = responses.RequestMoneyResponseDTO{StatusCode: responseCode, Result: &payment, StatusDesc: responseMessage}
-							}
-						}
-
+	clientId, _ := strconv.ParseInt(v.ClientId, 10, 64)
+	if corpInfo, err := models.GetCorporateinfoById(clientId); err == nil {
+		if payment, err := models.GetPaymentsById(id); err == nil {
+			logs.Info("Payment found: ", payment)
+			if network, err := models.GetNetworksByCode(v.Channel); err == nil {
+				if v.Operator == "HUBTEL" {
+					customerName := v.CustomerName
+					callbackurl := ""
+					if cbr, err := models.GetApplication_propertyByCode("HUBTEL_PAYMENT_CALLBACK_URL"); err == nil {
+						callbackurl = cbr.PropertyValue
 					} else {
-						logs.Error("Failed to create payment record: %v", err)
-						resp = responses.RequestMoneyResponseDTO{StatusCode: 807, Result: nil, StatusDesc: "Order error! " + err.Error()}
+						logs.Error("Failed to get callback URL: %v", err)
 					}
-				} else {
-					logs.Error("Unable to get status PENDING: %v", err)
-					resp = responses.RequestMoneyResponseDTO{StatusCode: 808, Result: nil, StatusDesc: "Order error! " + err.Error()}
-				}
-			}
 
+					if status, err := models.GetStatusByName("PENDING"); err == nil {
+						var payment_history models.Payment_history = models.Payment_history{
+							Payment:      payment,
+							Status:       status.StatusId,
+							Service:      "MOBILEMONEY",
+							Narration:    "Requesting money via Mobile Money for Payment ID " + paymentId,
+							Reference:    v.Channel,
+							DateCreated:  time.Now(),
+							DateModified: time.Now(),
+							CreatedBy:    1,
+							ModifiedBy:   1,
+							Active:       1,
+						}
+						if _, err := models.AddPayment_history(&payment_history); err == nil {
+							momoRequest := requests.MomoPaymentApiRequestDTO{
+								Payment:            *payment,
+								CustomerName:       customerName,
+								CustomerMsisdn:     v.CustomerMsisdn,
+								CustomerEmail:      v.CustomerEmail,
+								Channel:            network.NetworkReferenceId,
+								Amount:             float32(v.Amount),
+								PrimaryCallbackUrl: callbackurl,
+								Description:        "Payment for " + customerName,
+								ClientReference:    v.ClientReference,
+								ClientId:           corpInfo.DepositId,
+							}
+
+							payment := responses.RequestMoneyDataResponse{
+								PaymentId:          v.PaymentId,
+								Amount:             payment.Amount,
+								SenderAccount:      payment.SenderAccount,
+								ReceiverAccount:    payment.ReceiverAccount,
+								ReferenceNumber:    payment.ReferenceNumber,
+								Description:        payment.Narration,
+								AmountAfterCharges: payment.OtherCharge,
+								AmountCharged:      payment.Charge,
+								PaymentDate:        payment.DateCreated.Format("2006-01-02 15:04:05"),
+							}
+
+							if hubtelResp, err := functions.PaymentRequestViaMobileMoney(&c.Controller, momoRequest); err == nil {
+								logs.Info("Hubtel payment request response: ", hubtelResp)
+								if hubtelResp.Success {
+									responseCode = 200
+									responseMessage = "Payment request successful"
+									payment.ReferenceNumber = hubtelResp.Result.ClientReference
+									payment.Description = hubtelResp.Result.Description
+									payment.AmountAfterCharges = hubtelResp.Result.AmountAfterCharges
+									payment.AmountCharged = hubtelResp.Result.AmountCharged
+									payment.PaymentDate = hubtelResp.Result.PaymentDate
+									resp = responses.RequestMoneyResponseDTO{StatusCode: responseCode, Result: &payment, StatusDesc: responseMessage}
+								} else {
+									responseMessage = "Payment request failed! " + hubtelResp.StatusDesc
+									resp = responses.RequestMoneyResponseDTO{StatusCode: responseCode, Result: &payment, StatusDesc: responseMessage}
+								}
+							}
+
+						} else {
+							logs.Error("Failed to create payment record: %v", err)
+							resp = responses.RequestMoneyResponseDTO{StatusCode: 807, Result: nil, StatusDesc: "Order error! " + err.Error()}
+						}
+					} else {
+						logs.Error("Unable to get status PENDING: %v", err)
+						resp = responses.RequestMoneyResponseDTO{StatusCode: 808, Result: nil, StatusDesc: "Order error! " + err.Error()}
+					}
+				}
+
+			} else {
+				logs.Error("Unable to get network ", err.Error())
+				resp = responses.RequestMoneyResponseDTO{StatusCode: 806, Result: nil, StatusDesc: "Order error! " + err.Error()}
+			}
 		} else {
-			logs.Error("Unable to get network ", err.Error())
-			resp = responses.RequestMoneyResponseDTO{StatusCode: 806, Result: nil, StatusDesc: "Order error! " + err.Error()}
+			logs.Error("Unable to find payment ", err.Error())
+			resp = responses.RequestMoneyResponseDTO{StatusCode: 805, Result: nil, StatusDesc: "Order error! " + err.Error()}
 		}
 	} else {
-		logs.Error("Unable to find payment ", err.Error())
-		resp = responses.RequestMoneyResponseDTO{StatusCode: 805, Result: nil, StatusDesc: "Order error! " + err.Error()}
+		logs.Error("Unable to find corporate info ", err.Error())
+		resp = responses.RequestMoneyResponseDTO{StatusCode: 804, Result: nil, StatusDesc: "Order error! " + err.Error()}
 	}
 	c.Data["json"] = resp
 	c.ServeJSON()

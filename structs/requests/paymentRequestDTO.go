@@ -45,6 +45,7 @@ type MomoPaymentRequestDTO struct {
 	Description        string
 	ClientReference    string
 	Channel            string
+	ClientId           string
 }
 
 type MomoPaymentApiRequestDTO struct {
@@ -57,6 +58,7 @@ type MomoPaymentApiRequestDTO struct {
 	PrimaryCallbackUrl string
 	Description        string
 	ClientReference    string
+	ClientId           string
 }
 
 type HubtelMomoPaymentRequestDTO struct {
@@ -69,6 +71,7 @@ type HubtelMomoPaymentRequestDTO struct {
 	Description        string
 	ClientReference    string
 	Network            string
+	ClientId           string
 }
 
 type NameInquiryRequestDTO struct {
