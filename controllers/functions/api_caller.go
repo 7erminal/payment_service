@@ -15,7 +15,7 @@ import (
 func HubtelRequestViaMobileMoney(c *beego.Controller, req requests.HubtelMomoPaymentRequestDTO) (responses.HubtelPaymentRequestApiResponseDTO, error) {
 	host, _ := beego.AppConfig.String("hubtelReceiveBaseUrl")
 	salesId := req.ClientId
-	authorizationKey, _ := beego.AppConfig.String("authorizationKeySales")
+	authorizationKey := req.AuthKey
 
 	logs.Info("Sending phone number ", req.CustomerMsisdn)
 	logs.Info("Network is ", req.Network)
@@ -80,7 +80,7 @@ func HubtelRequestViaMobileMoney(c *beego.Controller, req requests.HubtelMomoPay
 func HubtelSendMoneyViaMobileMoney(c *beego.Controller, req requests.HubtelMomoPaymentRequestDTO) (responses.HubtelSendPaymentApiResponseDTO, error) {
 	host, _ := beego.AppConfig.String("hubtelSendBaseUrl")
 	prepaidId := req.ClientId
-	authorizationKey, _ := beego.AppConfig.String("authorizationKey")
+	authorizationKey := req.AuthKey
 
 	logs.Info("Sending phone number ", req.CustomerMsisdn)
 	logs.Info("Network is ", req.Network)

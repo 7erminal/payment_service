@@ -59,6 +59,7 @@ type MomoPaymentApiRequestDTO struct {
 	Description        string
 	ClientReference    string
 	ClientId           string
+	AuthKey            string
 }
 
 type HubtelMomoPaymentRequestDTO struct {
@@ -72,6 +73,7 @@ type HubtelMomoPaymentRequestDTO struct {
 	ClientReference    string
 	Network            string
 	ClientId           string
+	AuthKey            string
 }
 
 type NameInquiryRequestDTO struct {

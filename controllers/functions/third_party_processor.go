@@ -24,6 +24,7 @@ func PaymentRequestViaMobileMoney(c *beego.Controller, req requests.MomoPaymentA
 		ClientReference:    req.ClientReference,
 		Network:            req.Channel,
 		ClientId:           req.ClientId,
+		AuthKey:            req.AuthKey,
 	}
 
 	responseCode := false
@@ -84,6 +85,7 @@ func PaymentSendViaMobileMoney(c *beego.Controller, req requests.MomoPaymentApiR
 		ClientReference:    req.ClientReference,
 		Network:            req.Channel,
 		ClientId:           req.ClientId,
+		AuthKey:            req.AuthKey,
 	}
 
 	responseCode := false

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"payment_service/controllers/functions"
+	"payment_service/helpers"
 	"payment_service/models"
 	"payment_service/structs/requests"
 	"payment_service/structs/responses"
@@ -283,6 +284,7 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 							Active:       1,
 						}
 						if _, err := models.AddPayment_history(&payment_history); err == nil {
+							authkey := helpers.ConvertToBase64(corpInfo.ApiId + ":" + corpInfo.ApiKey)
 							momoRequest := requests.MomoPaymentApiRequestDTO{
 								Payment:            *payment,
 								CustomerName:       customerName,
@@ -294,6 +296,7 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 								Description:        "Payment for " + customerName,
 								ClientReference:    v.ClientReference,
 								ClientId:           corpInfo.DepositId,
+								AuthKey:            authkey,
 							}
 
 							payment := responses.SendMoneyDataResponse{
