@@ -295,7 +295,7 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 								PrimaryCallbackUrl: callbackurl,
 								Description:        "Payment for " + customerName,
 								ClientReference:    v.ClientReference,
-								ClientId:           corpInfo.DepositId,
+								ClientId:           corpInfo.PrepaidId,
 								AuthKey:            authkey,
 							}
 
