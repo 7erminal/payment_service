@@ -87,6 +87,9 @@ func HubtelSendMoneyViaMobileMoney(c *beego.Controller, req requests.HubtelMomoP
 	logs.Info("Callback URL is ", req.PrimaryCallbackUrl)
 	logs.Info("Amount is ", req.Amount)
 	logs.Info("Destination is ", req.Channel)
+	logs.Info("Client Reference is ", req.ClientReference)
+	logs.Info("Client ID is ", req.ClientId)
+	logs.Info("Auth key is ", req.AuthKey)
 
 	// serviceId, _ := helpers.GetServiceId(req.Network)
 
