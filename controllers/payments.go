@@ -8,6 +8,7 @@ import (
 	"payment_service/controllers/functions"
 	"payment_service/helpers"
 	"payment_service/models"
+	"payment_service/models/tomodels"
 	"payment_service/structs/requests"
 	"payment_service/structs/responses"
 	"strconv"
@@ -35,67 +36,6 @@ func (c *PaymentsController) URLMapping() {
 	c.Mapping("GetPaymentCount", c.GetPaymentCount)
 	c.Mapping("NameInquiry", c.NameInquiry)
 	c.Mapping("SendMoneyViaMomo", c.SendMoneyViaMomo)
-}
-
-func customerResponseToModel(cust *responses.Customers) models.Customers {
-	if cust == nil {
-		return models.Customers{}
-	}
-
-	result := models.Customers{
-		CustomerId:           cust.CustomerId,
-		FullName:             cust.FullName,
-		ImagePath:            cust.ImagePath,
-		Email:                cust.Email,
-		PhoneNumber:          cust.PhoneNumber,
-		Location:             cust.Location,
-		IdentificationNumber: cust.IdentificationNumber,
-		Nickname:             cust.Nickname,
-		Dob:                  cust.Dob,
-		DateCreated:          cust.DateCreated,
-		DateModified:         cust.DateModified,
-		CreatedBy:            cust.CreatedBy,
-		ModifiedBy:           cust.ModifiedBy,
-		Active:               cust.Active,
-		LastTxnDate:          cust.LastTxnDate,
-	}
-
-	if cust.IdentificationType != nil {
-		result.IdentificationType = cust.IdentificationType.IdentificationTypeId
-	}
-
-	if cust.Branch != nil {
-		result.Branch = &models.Branches{
-			BranchId:     cust.Branch.BranchId,
-			Branch:       cust.Branch.Branch,
-			Location:     cust.Branch.Location,
-			PhoneNumber:  cust.Branch.PhoneNumber,
-			Active:       cust.Branch.Active,
-			DateCreated:  cust.Branch.DateCreated,
-			DateModified: cust.Branch.DateModified,
-			CreatedBy:    cust.Branch.CreatedBy,
-			ModifiedBy:   cust.Branch.ModifiedBy,
-		}
-	}
-
-	if cust.Shop != nil {
-		result.ShopId = cust.Shop.ShopId
-	}
-
-	if cust.CustomerCategory != nil {
-		result.CustomerCategory = &models.Customer_categories{
-			CustomerCategoryId: cust.CustomerCategory.CustomerCategoryId,
-			Category:           cust.CustomerCategory.Category,
-			Description:        cust.CustomerCategory.Description,
-			DateCreated:        cust.CustomerCategory.DateCreated,
-			DateModified:       cust.CustomerCategory.DateModified,
-			CreatedBy:          cust.CustomerCategory.CreatedBy,
-			ModifiedBy:         cust.CustomerCategory.ModifiedBy,
-			Active:             cust.CustomerCategory.Active,
-		}
-	}
-
-	return result
 }
 
 // Post ...
@@ -130,7 +70,7 @@ func (c *PaymentsController) Post() {
 			getCustReq := requests.GetCustomerRequest{CustomerId: senderStr}
 			if s, err := functions.GetCustomer(&c.Controller, getCustReq); err == nil {
 				if s.StatusCode == 200 && s.Customer != nil {
-					sender = customerResponseToModel(s.Customer)
+					sender = tomodels.CustomerResponseToModel(s.Customer)
 				}
 			} else {
 				logs.Error("Error getting customer ", err.Error())
@@ -151,8 +91,11 @@ func (c *PaymentsController) Post() {
 				if paymentMethod, err := models.GetPayment_methodsByName(v.PaymentMethod); err == nil {
 
 					var receiver models.Users
-					if u, err := models.GetUsersById(v.Reciever); err == nil {
-						receiver = *u
+					receiverStr := strconv.FormatInt(v.Reciever, 10)
+					if u, err := functions.GetUser(&c.Controller, requests.GetUserRequest{UserId: receiverStr}); err == nil {
+						if u.StatusCode == 200 && u.User != nil {
+							receiver = tomodels.UserResponseToModel(u.User)
+						}
 					} else {
 						logs.Error("Error getting user ", err.Error())
 					}
