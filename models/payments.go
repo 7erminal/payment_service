@@ -15,13 +15,13 @@ type Payments struct {
 	PaymentId       int64 `orm:"auto"`
 	InitiatedBy     int64
 	TransactionId   string
-	Request         *Request   `orm:"rel(fk);null;column(request_id)"`
-	Sender          *Customers `orm:"rel(fk);null;column(sender)"`
-	Service         string     `orm:"size(128)"`
-	Reciever        *Users     `orm:"rel(fk);null;column(reciever)"`
-	SenderAccount   string     `orm:"size(128);null"`
-	ReceiverAccount string     `orm:"size(128);null"`
-	PaymentCurrency string     `orm:"size(10)"`
+	Request         *Request `orm:"rel(fk);null;column(request_id)"`
+	Sender          string   `orm:"size(128);null;column(sender)"`
+	Service         string   `orm:"size(128)"`
+	Reciever        string   `orm:"size(128);null;column(reciever)"`
+	SenderAccount   string   `orm:"size(128);null"`
+	ReceiverAccount string   `orm:"size(128);null"`
+	PaymentCurrency string   `orm:"size(10)"`
 	Amount          float64
 	Commission      float64
 	Charge          float64

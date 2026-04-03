@@ -111,6 +111,8 @@ func (c *PaymentsController) Post() {
 						// 		logs.Error("Invalid TransactionId: ", err)
 						// 	}
 						// }
+						receiverIdStr := strconv.FormatInt(receiver.UserId, 10)
+						senderIdStr := strconv.FormatInt(sender.CustomerId, 10)
 
 						var payment models.Payments = models.Payments{
 							TransactionId:   v.TransactionId,
@@ -118,8 +120,8 @@ func (c *PaymentsController) Post() {
 							ReferenceNumber: v.ReferenceNumber,
 							Request:         &req,
 							InitiatedBy:     v.InitiatedBy,
-							Sender:          &sender,
-							Reciever:        &receiver,
+							Sender:          senderIdStr,
+							Reciever:        receiverIdStr,
 							Amount:          float64(v.Amount),
 							PaymentMethod:   paymentMethod,
 							PaymentCurrency: v.Currency,
@@ -178,8 +180,8 @@ func (c *PaymentsController) Post() {
 								}
 								paymentResp := responses.PaymentResponse{
 									PaymentId:       strconv.FormatInt(payment.PaymentId, 10),
-									Sender:          payment.Sender.FullName,
-									Reciever:        payment.Reciever.FullName,
+									Sender:          sender.FullName,
+									Reciever:        receiver.FullName,
 									Amount:          payment.Amount,
 									Commission:      payment.Commission,
 									Charge:          payment.Charge,
@@ -552,10 +554,30 @@ func (c *PaymentsController) GetOneWithTransactionReference() {
 			logs.Error("Failed to retrieve payment history: %v", err)
 		}
 
+		var sender models.Customers
+		getCustReq := requests.GetCustomerRequest{CustomerId: v.Sender}
+		if s, err := functions.GetCustomer(&c.Controller, getCustReq); err == nil {
+			if s.StatusCode == 200 && s.Customer != nil {
+				sender = tomodels.CustomerResponseToModel(s.Customer)
+			}
+		} else {
+			logs.Error("Error getting customer ", err.Error())
+		}
+
+		var receiver models.Users
+		if u, err := functions.GetUser(&c.Controller, requests.GetUserRequest{UserId: v.Reciever}); err == nil {
+			if u.StatusCode == 200 && u.User != nil {
+				receiver = tomodels.UserResponseToModel(u.User)
+				logs.Info("User found and initialized")
+			}
+		} else {
+			logs.Error("Error getting user ", err.Error())
+		}
+
 		payment = responses.PaymentResponse{
 			TransactionId:   v.TransactionId,
-			Sender:          v.Sender.FullName,
-			Reciever:        v.Reciever.FullName,
+			Sender:          sender.FullName,
+			Reciever:        receiver.FullName,
 			Amount:          v.Amount,
 			Commission:      v.Commission,
 			Charge:          v.Charge,
