@@ -37,6 +37,67 @@ func (c *PaymentsController) URLMapping() {
 	c.Mapping("SendMoneyViaMomo", c.SendMoneyViaMomo)
 }
 
+func customerResponseToModel(cust *responses.Customers) models.Customers {
+	if cust == nil {
+		return models.Customers{}
+	}
+
+	result := models.Customers{
+		CustomerId:           cust.CustomerId,
+		FullName:             cust.FullName,
+		ImagePath:            cust.ImagePath,
+		Email:                cust.Email,
+		PhoneNumber:          cust.PhoneNumber,
+		Location:             cust.Location,
+		IdentificationNumber: cust.IdentificationNumber,
+		Nickname:             cust.Nickname,
+		Dob:                  cust.Dob,
+		DateCreated:          cust.DateCreated,
+		DateModified:         cust.DateModified,
+		CreatedBy:            cust.CreatedBy,
+		ModifiedBy:           cust.ModifiedBy,
+		Active:               cust.Active,
+		LastTxnDate:          cust.LastTxnDate,
+	}
+
+	if cust.IdentificationType != nil {
+		result.IdentificationType = cust.IdentificationType.IdentificationTypeId
+	}
+
+	if cust.Branch != nil {
+		result.Branch = &models.Branches{
+			BranchId:     cust.Branch.BranchId,
+			Branch:       cust.Branch.Branch,
+			Location:     cust.Branch.Location,
+			PhoneNumber:  cust.Branch.PhoneNumber,
+			Active:       cust.Branch.Active,
+			DateCreated:  cust.Branch.DateCreated,
+			DateModified: cust.Branch.DateModified,
+			CreatedBy:    cust.Branch.CreatedBy,
+			ModifiedBy:   cust.Branch.ModifiedBy,
+		}
+	}
+
+	if cust.Shop != nil {
+		result.ShopId = cust.Shop.ShopId
+	}
+
+	if cust.CustomerCategory != nil {
+		result.CustomerCategory = &models.Customer_categories{
+			CustomerCategoryId: cust.CustomerCategory.CustomerCategoryId,
+			Category:           cust.CustomerCategory.Category,
+			Description:        cust.CustomerCategory.Description,
+			DateCreated:        cust.CustomerCategory.DateCreated,
+			DateModified:       cust.CustomerCategory.DateModified,
+			CreatedBy:          cust.CustomerCategory.CreatedBy,
+			ModifiedBy:         cust.CustomerCategory.ModifiedBy,
+			Active:             cust.CustomerCategory.Active,
+		}
+	}
+
+	return result
+}
+
 // Post ...
 // @Title Post
 // @Description create Payments
@@ -65,8 +126,12 @@ func (c *PaymentsController) Post() {
 		status, err := models.GetStatus_codesByCode(statusCode)
 		if err == nil {
 			var sender models.Customers
-			if s, err := models.GetCustomerById(v.Sender); err == nil {
-				sender = *s
+			senderStr := strconv.FormatInt(v.Sender, 10)
+			getCustReq := requests.GetCustomerRequest{CustomerId: senderStr}
+			if s, err := functions.GetCustomer(&c.Controller, getCustReq); err == nil {
+				if s.StatusCode == 200 && s.Customer != nil {
+					sender = customerResponseToModel(s.Customer)
+				}
 			} else {
 				logs.Error("Error getting customer ", err.Error())
 			}
@@ -246,6 +311,7 @@ func (c *PaymentsController) SendMoneyViaMomo() {
 	}
 	paymentId := v.PaymentId
 	logs.Info("Processing payment request for Payment ID: ", paymentId)
+	logs.Info("Client ID received is ", v.ClientId)
 
 	id, perr := strconv.ParseInt(paymentId, 10, 64)
 	if perr != nil {
