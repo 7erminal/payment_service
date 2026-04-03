@@ -75,12 +75,12 @@ func GetCustomer(c *beego.Controller, req requests.GetCustomerRequest) (response
 	request := api.NewRequest(
 		host,
 		"/v1/customers/"+req.CustomerId,
-		api.POST)
+		api.GET)
 
 	// request.Params = {"UserId": strconv.Itoa(int(userid))}
 	client := api.Client{
 		Request: request,
-		Type_:   "body",
+		Type_:   "params",
 	}
 	res, err := client.SendRequest()
 	if err != nil {
