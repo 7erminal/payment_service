@@ -3,7 +3,9 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"payment_service/controllers/functions"
 	"payment_service/models"
+	tomodels "payment_service/models/toModels"
 	"payment_service/structs/requests"
 	"payment_service/structs/responses"
 	"strconv"
@@ -199,12 +201,33 @@ func (c *CallbackController) Post() {
 				} else {
 					logs.Info("Response: %s", string(respJSON))
 				}
+
+				var sender models.Customers
+				getCustReq := requests.GetCustomerRequest{CustomerId: resp.Sender}
+				if s, err := functions.GetCustomer(&c.Controller, getCustReq); err == nil {
+					if s.StatusCode == 200 && s.Customer != nil {
+						sender = tomodels.CustomerResponseToModel(s.Customer)
+					}
+				} else {
+					logs.Error("Error getting customer ", err.Error())
+				}
+
+				var receiver models.Users
+				if u, err := functions.GetUser(&c.Controller, requests.GetUserRequest{UserId: resp.Reciever}); err == nil {
+					if u.StatusCode == 200 && u.User != nil {
+						receiver = tomodels.UserResponseToModel(u.User)
+						logs.Info("User found and initialized")
+					}
+				} else {
+					logs.Error("Error getting user ", err.Error())
+				}
+
 				responseCode = 200
 				responseMessage = "Transaction updated successfully"
 				payment := responses.PaymentResponse{
 					TransactionId:   resp.TransactionId,
-					Sender:          resp.Sender.FullName,
-					Reciever:        resp.Reciever.FullName,
+					Sender:          sender.FullName,
+					Reciever:        receiver.FullName,
 					Amount:          resp.Amount,
 					Commission:      resp.Commission,
 					Charge:          resp.Charge,
