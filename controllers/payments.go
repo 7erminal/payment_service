@@ -92,6 +92,7 @@ func (c *PaymentsController) Post() {
 
 					var receiver models.Users
 					receiverStr := strconv.FormatInt(v.Reciever, 10)
+					logs.Info("Receiver string is ", receiverStr)
 					if u, err := functions.GetUser(&c.Controller, requests.GetUserRequest{UserId: receiverStr}); err == nil {
 						if u.StatusCode == 200 && u.User != nil {
 							receiver = tomodels.UserResponseToModel(u.User)
