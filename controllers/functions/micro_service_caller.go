@@ -29,12 +29,12 @@ func GetUser(c *beego.Controller, req requests.GetUserRequest) (responses.UserRe
 	request := api.NewRequest(
 		host,
 		"/v1/users/"+req.UserId,
-		api.POST)
+		api.GET)
 
 	// request.Params = {"UserId": strconv.Itoa(int(userid))}
 	client := api.Client{
 		Request: request,
-		Type_:   "body",
+		Type_:   "params",
 	}
 	res, err := client.SendRequest()
 	if err != nil {
