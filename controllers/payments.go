@@ -8,7 +8,7 @@ import (
 	"payment_service/controllers/functions"
 	"payment_service/helpers"
 	"payment_service/models"
-	"payment_service/models/tomodels"
+	tomodels "payment_service/models/toModels"
 	"payment_service/structs/requests"
 	"payment_service/structs/responses"
 	"strconv"
