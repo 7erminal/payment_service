@@ -96,6 +96,7 @@ func (c *PaymentsController) Post() {
 					if u, err := functions.GetUser(&c.Controller, requests.GetUserRequest{UserId: receiverStr}); err == nil {
 						if u.StatusCode == 200 && u.User != nil {
 							receiver = tomodels.UserResponseToModel(u.User)
+							logs.Info("User found and initialized")
 						}
 					} else {
 						logs.Error("Error getting user ", err.Error())
