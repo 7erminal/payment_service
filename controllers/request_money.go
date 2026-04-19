@@ -60,11 +60,13 @@ func (c *Request_moneyController) RequestMoneyViaMomo() {
 			if network, err := models.GetNetworksByCode(v.Channel); err == nil {
 				if v.Operator == "HUBTEL" {
 					customerName := v.CustomerName
-					callbackurl := ""
-					if cbr, err := models.GetApplication_propertyByCode("HUBTEL_PAYMENT_CALLBACK_URL"); err == nil {
-						callbackurl = cbr.PropertyValue
-					} else {
-						logs.Error("Failed to get callback URL: %v", err)
+					callbackurl := v.PrimaryCallbackUrl
+					if callbackurl == "" {
+						if cbr, err := models.GetApplication_propertyByCode("HUBTEL_PAYMENT_CALLBACK_URL"); err == nil {
+							callbackurl = cbr.PropertyValue
+						} else {
+							logs.Error("Failed to get callback URL: %v", err)
+						}
 					}
 
 					if status, err := models.GetStatusByName("PENDING"); err == nil {
