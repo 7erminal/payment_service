@@ -46,6 +46,7 @@ type MomoPaymentRequestDTO struct {
 	ClientReference    string
 	Channel            string
 	ClientId           string
+	Service            string
 }
 
 type MomoPaymentApiRequestDTO struct {
