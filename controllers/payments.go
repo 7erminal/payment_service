@@ -164,8 +164,8 @@ func (c *PaymentsController) Post() {
 								if v.CallThirdParty {
 									logs.Info("Callback required")
 									operatorCaps := strings.ToUpper(v.Operator)
-									if v.ServiceCode != "" {
-										serviceCode = v.ServiceCode
+									if v.CallbackServiceCode != "" {
+										serviceCode = v.CallbackServiceCode
 									}
 									serviceCaps := strings.ToUpper(serviceCode)
 									operator, err := models.GetOperatorByName(operatorCaps)

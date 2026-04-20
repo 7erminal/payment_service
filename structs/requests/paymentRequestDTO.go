@@ -15,24 +15,24 @@ type PaymentRequestDTO struct {
 }
 
 type PaymentRequest2DTO struct {
-	InitiatedBy     int64
-	Amount          float32
-	Service         string
-	Sender          int64
-	Reciever        int64
-	SenderAccount   string
-	ReceiverAccount string
-	Currency        string
-	PaymentMethod   string
-	TransactionId   string
-	PaymentProofUrl string
-	ReferenceNumber string
-	CallThirdParty  bool
-	Operator        string
-	Network         string
-	ServiceNetwork  string
-	ServicePackage  string
-	ServiceCode     string
+	InitiatedBy         int64
+	Amount              float32
+	Service             string
+	Sender              int64
+	Reciever            int64
+	SenderAccount       string
+	ReceiverAccount     string
+	Currency            string
+	PaymentMethod       string
+	TransactionId       string
+	PaymentProofUrl     string
+	ReferenceNumber     string
+	CallThirdParty      bool
+	Operator            string
+	Network             string
+	ServiceNetwork      string
+	ServicePackage      string
+	CallbackServiceCode string
 }
 
 type MomoPaymentRequestDTO struct {
