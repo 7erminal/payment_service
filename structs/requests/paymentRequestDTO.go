@@ -32,6 +32,7 @@ type PaymentRequest2DTO struct {
 	Network         string
 	ServiceNetwork  string
 	ServicePackage  string
+	ServiceCode     string
 }
 
 type MomoPaymentRequestDTO struct {

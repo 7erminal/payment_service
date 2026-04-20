@@ -61,6 +61,7 @@ func (c *PaymentsController) Post() {
 	statusCode := "PENDING"
 
 	serviceCode := "PAYMENT"
+
 	if service, err := models.GetServicesByCode(serviceCode); err == nil {
 		logs.Info("Service fetched successfully")
 		status, err := models.GetStatus_codesByCode(statusCode)
@@ -163,7 +164,10 @@ func (c *PaymentsController) Post() {
 								if v.CallThirdParty {
 									logs.Info("Callback required")
 									operatorCaps := strings.ToUpper(v.Operator)
-									serviceCaps := strings.ToUpper("PAYMENT")
+									if v.ServiceCode != "" {
+										serviceCode = v.ServiceCode
+									}
+									serviceCaps := strings.ToUpper(serviceCode)
 									operator, err := models.GetOperatorByName(operatorCaps)
 									if err == nil {
 										appProperty, err := models.GetApplication_propertyByCode(strings.ToUpper(operator.OperatorName) + "_" + serviceCaps + "_CALLBACK_URL")
