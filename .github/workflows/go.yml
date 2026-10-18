@@ -5,7 +5,7 @@ name: Go
 
 on:
   push:
-    branches: [ "msysmobilizer" ]
+    branches: [ "shopmallafrik" ]
   pull_request:
     branches: [ "msysmobilizer" ]
 

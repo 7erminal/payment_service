@@ -14,8 +14,8 @@ type PaymentHistoryResponse struct {
 	Reference        string
 	DateCreated      time.Time
 	DateModified     time.Time
-	CreatedBy        int64
-	ModifiedBy       int64
+	CreatedBy        string
+	ModifiedBy       string
 	Active           int
 }
 

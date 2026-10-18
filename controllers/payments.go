@@ -66,8 +66,8 @@ func (c *PaymentsController) Post() {
 		logs.Info("Service fetched successfully")
 		status, err := models.GetStatus_codesByCode(statusCode)
 		if err == nil {
-			var sender models.Customers
-			senderStr := strconv.FormatInt(v.Sender, 10)
+			var sender responses.Customers
+			senderStr := v.Sender
 			getCustReq := requests.GetCustomerRequest{CustomerId: senderStr}
 			if s, err := functions.GetCustomer(&c.Controller, getCustReq); err == nil {
 				if s.StatusCode == 200 && s.Customer != nil {
@@ -78,7 +78,7 @@ func (c *PaymentsController) Post() {
 			}
 
 			req := models.Request{
-				CustId:          &sender,
+				CustId:          senderStr,
 				Request:         string(reqText),
 				RequestType:     service.ServiceName,
 				RequestStatus:   status.StatusDescription,
@@ -91,8 +91,8 @@ func (c *PaymentsController) Post() {
 			if _, err := models.AddRequest(&req); err == nil {
 				if paymentMethod, err := models.GetPayment_methodsByName(v.PaymentMethod); err == nil {
 
-					var receiver models.Users
-					receiverStr := strconv.FormatInt(v.Reciever, 10)
+					var receiver responses.Users
+					receiverStr := v.Reciever
 					logs.Info("Receiver string is ", receiverStr)
 					if u, err := functions.GetUser(&c.Controller, requests.GetUserRequest{UserId: receiverStr}); err == nil {
 						if u.StatusCode == 200 && u.User != nil {
@@ -112,8 +112,8 @@ func (c *PaymentsController) Post() {
 						// 		logs.Error("Invalid TransactionId: ", err)
 						// 	}
 						// }
-						receiverIdStr := strconv.FormatInt(receiver.UserId, 10)
-						senderIdStr := strconv.FormatInt(sender.CustomerId, 10)
+						receiverIdStr := receiver.UserId
+						senderIdStr := sender.CustomerId
 
 						var payment models.Payments = models.Payments{
 							TransactionId:   v.TransactionId,

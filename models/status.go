@@ -16,8 +16,8 @@ type Status struct {
 	StatusCode   string    `orm:"size(128)"`
 	DateCreated  time.Time `orm:"type(datetime)"`
 	DateModified time.Time `orm:"type(datetime)"`
-	CreatedBy    int
-	ModifiedBy   int
+	CreatedBy    string
+	ModifiedBy   string
 	Active       int
 }
 

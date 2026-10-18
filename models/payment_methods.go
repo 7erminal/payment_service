@@ -15,8 +15,8 @@ type Payment_methods struct {
 	PaymentMethod   string    `orm:"size(128)"`
 	DateCreated     time.Time `orm:"type(datetime)"`
 	DateModified    time.Time `orm:"type(datetime)"`
-	CreatedBy       int
-	ModifiedBy      int
+	CreatedBy       string
+	ModifiedBy      string
 	Active          int
 }
 

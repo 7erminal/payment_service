@@ -79,7 +79,7 @@ type Customer_categories struct {
 }
 
 type Customers struct {
-	CustomerId           int64
+	CustomerId           string
 	CustomerNumber       string
 	FullName             string
 	ImagePath            string
@@ -127,7 +127,7 @@ type Customer_emergency_contacts struct {
 }
 
 type Users struct {
-	UserId        int64
+	UserId        string
 	UserDetails   *UserExtraDetails
 	ImagePath     string
 	UserType      int

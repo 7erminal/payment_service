@@ -16,11 +16,11 @@ type Networks struct {
 	NetworkCode        string    `orm:"size(80)"`
 	NetworkReferenceId string    `orm:"size(250)"`
 	Description        string    `orm:"size(255)"`
-	Operator           *Operator `orm:"rel(fk);column(operator_id)"`
+	Operator           string    `orm:"column(operator_id)"`
 	DateCreated        time.Time `orm:"type(datetime)"`
 	DateModified       time.Time `orm:"type(datetime)"`
-	CreatedBy          int
-	ModifiedBy         int
+	CreatedBy          string
+	ModifiedBy         string
 	Active             int
 }
 

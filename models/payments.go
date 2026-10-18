@@ -13,7 +13,7 @@ import (
 
 type Payments struct {
 	PaymentId       int64 `orm:"auto"`
-	InitiatedBy     int64
+	InitiatedBy     string
 	TransactionId   string
 	Request         *Request `orm:"rel(fk);null;column(request_id)"`
 	Sender          string   `orm:"size(128);null;column(sender)"`
@@ -38,8 +38,8 @@ type Payments struct {
 	DateCreated     time.Time `orm:"type(datetime)"`
 	DateModified    time.Time `orm:"type(datetime)"`
 	DateProcessed   time.Time `orm:"type(datetime);null"`
-	CreatedBy       int64
-	ModifiedBy      int64
+	CreatedBy       string
+	ModifiedBy      string
 	Active          int
 }
 

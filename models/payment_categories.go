@@ -16,8 +16,8 @@ type Payment_categories struct {
 	Description       string    `orm:"size(255)"`
 	DateCreated       time.Time `orm:"type(datetime)"`
 	DateModified      time.Time `orm:"type(datetime)"`
-	CreatedBy         int
-	ModifiedBy        int
+	CreatedBy         string
+	ModifiedBy        string
 	Active            int
 }
 

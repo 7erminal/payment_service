@@ -11,11 +11,11 @@ import (
 )
 
 type Request struct {
-	RequestId        int64      `orm:"auto"`
-	CustId           *Customers `orm:"rel(fk);column(cust_id)"`
-	Request          string     `orm:"size(1000)"`
-	RequestType      string     `orm:"size(100)"`
-	RequestStatus    string     `orm:"size(255)"`
+	RequestId        int64  `orm:"auto"`
+	CustId           string `orm:"column(cust_id)"`
+	Request          string `orm:"size(1000)"`
+	RequestType      string `orm:"size(100)"`
+	RequestStatus    string `orm:"size(255)"`
 	RequestAmount    float64
 	RequestResponse  string    `orm:"size(1000)"`
 	CallbackResponse string    `orm:"size(1000)"`

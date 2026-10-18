@@ -19,8 +19,8 @@ type Payment_history struct {
 	Reference        string
 	DateCreated      time.Time `orm:"type(datetime)"`
 	DateModified     time.Time `orm:"type(datetime)"`
-	CreatedBy        int64
-	ModifiedBy       int64
+	CreatedBy        string
+	ModifiedBy       string
 	Active           int
 }
 

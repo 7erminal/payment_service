@@ -3,23 +3,23 @@ package requests
 import "payment_service/models"
 
 type PaymentRequestDTO struct {
-	InitiatedBy     int64
+	InitiatedBy     string
 	Amount          float32
-	Service         int64
-	Sender          int64
-	Reciever        int64
-	PaymentMethod   int64
-	TransactionId   int64
+	Service         string
+	Sender          string
+	Reciever        string
+	PaymentMethod   string
+	TransactionId   string
 	PaymentProofUrl string
 	ReferenceNumber string
 }
 
 type PaymentRequest2DTO struct {
-	InitiatedBy         int64
+	InitiatedBy         string
 	Amount              float32
 	Service             string
-	Sender              int64
-	Reciever            int64
+	Sender              string
+	Reciever            string
 	SenderAccount       string
 	ReceiverAccount     string
 	Currency            string
