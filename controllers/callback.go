@@ -85,7 +85,7 @@ func (c *CallbackController) Post() {
 				resp.DateProcessed = time.Now()
 				resp.Charge = v.Charges
 				// resp.OtherCharge = v.AmountCharged
-				resp.PaymentAmount = v.Amount
+				resp.PaymentAmount = v.AmountCharged
 				resp.Commission, _ = strconv.ParseFloat(v.Commission, 64)
 			} else {
 				c.Data["json"] = map[string]string{"error": "Status code not found"}
