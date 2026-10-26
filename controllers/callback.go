@@ -84,7 +84,7 @@ func (c *CallbackController) Post() {
 				}
 				resp.DateProcessed = time.Now()
 				resp.Charge = v.Charges
-				resp.OtherCharge = v.AmountCharged
+				// resp.OtherCharge = v.AmountCharged
 				resp.PaymentAmount = v.Amount
 				resp.Commission, _ = strconv.ParseFloat(v.Commission, 64)
 			} else {
