@@ -98,7 +98,7 @@ func (c *Request_moneyController) RequestMoneyViaMomo() {
 								AuthKey:            authkey,
 							}
 
-							payment := responses.RequestMoneyDataResponse{
+							paymentResp := responses.RequestMoneyDataResponse{
 								PaymentId:          v.PaymentId,
 								Amount:             payment.Amount,
 								SenderAccount:      payment.SenderAccount,
@@ -115,15 +115,16 @@ func (c *Request_moneyController) RequestMoneyViaMomo() {
 								if hubtelResp.Success {
 									responseCode = 200
 									responseMessage = "Payment request successful"
+
 									payment.ReferenceNumber = hubtelResp.Result.ClientReference
-									payment.Description = hubtelResp.Result.Description
-									payment.AmountAfterCharges = hubtelResp.Result.AmountAfterCharges
-									payment.AmountCharged = hubtelResp.Result.AmountCharged
-									payment.PaymentDate = hubtelResp.Result.PaymentDate
-									resp = responses.RequestMoneyResponseDTO{StatusCode: responseCode, Result: &payment, StatusDesc: responseMessage}
+									paymentResp.Description = hubtelResp.Result.Description
+									paymentResp.AmountAfterCharges = hubtelResp.Result.AmountAfterCharges
+									paymentResp.AmountCharged = hubtelResp.Result.AmountCharged
+									paymentResp.PaymentDate = hubtelResp.Result.PaymentDate
+									resp = responses.RequestMoneyResponseDTO{StatusCode: responseCode, Result: &paymentResp, StatusDesc: responseMessage}
 								} else {
 									responseMessage = "Payment request failed! " + hubtelResp.StatusDesc
-									resp = responses.RequestMoneyResponseDTO{StatusCode: responseCode, Result: &payment, StatusDesc: responseMessage}
+									resp = responses.RequestMoneyResponseDTO{StatusCode: responseCode, Result: &paymentResp, StatusDesc: responseMessage}
 								}
 							}
 

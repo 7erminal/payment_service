@@ -111,6 +111,7 @@ func PaymentSendViaMobileMoney(c *beego.Controller, req requests.MomoPaymentApiR
 	if requestPaymentResp.ResponseCode == "0001" {
 		if status, err := models.GetStatusByName("PENDING"); err == nil {
 			req.Payment.Status = status
+			req.Payment.Charge = requestPaymentResp.Data.Charges
 
 			if err := models.UpdatePaymentsById(&req.Payment); err == nil {
 				logs.Info("Payment status updated to PENDING for Payment ID: ", req.Payment.PaymentId)
